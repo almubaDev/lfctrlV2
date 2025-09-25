@@ -148,9 +148,25 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 {% if not book.is_closed and not book.annual_flow.is_closed %}
-                                <a href="{% url 'finances:income-delete' income.id %}" 
+                                <a href="{% url 'finances:income-delete' income.id %}"
                                    class="text-danger hover:text-red-700 transition"
                                    onclick="return confirm('¿Eliminar este ingreso?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                                 {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No se registraron ingresos durante este mes.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
