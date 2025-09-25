@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Detalle de Presupuesto - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark flex items-center">
+                <i class="fas fa-clipboard-check mr-3 text-warning"></i>
+                {{ presupuesto.nombre }}
+            </h1>
+            <p class="text-gray-600">Detalle y seguimiento de los items asociados al presupuesto.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'finances:presupuesto-list' %}"
+               class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </a>
+            <a href="{% url 'finances:add-presupuesto-item' presupuesto.id %}"
+               class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                <i class="fas fa-plus mr-2"></i>Agregar item
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-primary">
+            <div class="text-sm text-gray-500 uppercase">Items activos</div>
+            <div class="text-3xl font-bold text-primary-dark mt-2">{{ items|length }}</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-warning">
+            <div class="text-sm text-gray-500 uppercase">Costo estimado</div>
+            <div class="text-3xl font-bold text-warning mt-2">${{ total_cost|format_money }}</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-t-4 {% if presupuesto.is_closed %}border-green-500{% else %}border-danger{% endif %}">
+            <div class="text-sm text-gray-500 uppercase">Estado</div>
+            <div class="text-lg font-semibold mt-2">
+                {% if presupuesto.is_closed %}
+                <span class="text-green-600"><i class="fas fa-check mr-2"></i>Cerrado</span>
+                {% else %}
+                <span class="text-danger"><i class="fas fa-hourglass-half mr-2"></i>En progreso</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Available incomes -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-primary-dark">Ingresos disponibles para exportar</h2>
+            {% if insufficient_funds %}
+            <span class="px-3 py-1 rounded-full bg-red-100 text-danger text-sm font-semibold">
+                <i class="fas fa-exclamation-circle mr-1"></i>Saldo insuficiente
+            </span>
+            {% endif %}
+        </div>
+        {% if incomes %}
+        <p class="text-sm text-gray-600 mb-4">Selecciona uno o más ingresos para cubrir el costo de los items y luego utiliza el botón "Exportar" en cada fila.</p>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-100 text-gray-600">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Seleccionar</th>
+                        <th class="px-4 py-3 text-left">Mes</th>
+                        <th class="px-4 py-3 text-left">Descripción</th>
+                        <th class="px-4 py-3 text-left">Saldo disponible</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    {% for income in incomes %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">
+                            <input type="checkbox" value="{{ income.id }}" class="income-checkbox h-4 w-4 text-primary border-gray-300 rounded">
+                        </td>
+                        <td class="px-4 py-3 font-medium text-gray-700">{{ income.book.get_month_display }} {{ income.book.annual_flow.year }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ income.description }}</td>
+                        <td class="px-4 py-3 font-semibold text-green-600">${{ income.get_current_balance|format_money }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">No hay ingresos disponibles para cubrir este presupuesto actualmente.</p>
+        {% endif %}
+    </div>
+
+    <!-- Items list -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-primary-dark">Items del presupuesto</h2>
+        </div>
+        {% if items %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-primary text-white uppercase tracking-wide text-xs">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Nombre</th>
+                        <th class="px-4 py-3 text-left">Descripción</th>
+                        <th class="px-4 py-3 text-left">Costo</th>
+                        <th class="px-4 py-3 text-left">Estado</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-semibold text-gray-700">
+                            {{ item.nombre }}
+                            {% if item.url %}
+                            <a href="{{ item.url }}" target="_blank" class="text-primary text-xs ml-2 underline">Ver referencia</a>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ item.descripcion|default:'Sin descripción' }}</td>
+                        <td class="px-4 py-3 font-semibold text-primary-dark">${{ item.costo|format_money }}</td>
+                        <td class="px-4 py-3">
+                            {% if item.is_cerrado %}
+                            <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-xs font-semibold"><i class="fas fa-check mr-1"></i>Exportado</span>
+                            {% else %}
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold"><i class="fas fa-hourglass-half mr-1"></i>Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center space-x-2">
+                                <a href="{% url 'finances:edit-presupuesto-item' item.pk %}"
+                                   class="px-3 py-2 bg-primary-light text-primary-dark rounded-lg text-xs font-semibold hover:bg-primary transition">
+                                    <i class="fas fa-edit mr-1"></i>Editar
+                                </a>
+                                <a href="{% url 'finances:delete-presupuesto-item' item.pk %}"
+                                   class="px-3 py-2 bg-red-100 text-danger rounded-lg text-xs font-semibold hover:bg-red-200 transition"
+                                   onclick="return confirm('¿Deseas eliminar este item?')">
+                                    <i class="fas fa-trash mr-1"></i>Eliminar
+                                </a>
+                                {% if not item.is_cerrado and incomes %}
+                                <button type="button"
+                                        class="px-3 py-2 bg-green-500 text-white rounded-lg text-xs font-semibold hover:bg-green-600 transition export-button"
+                                        data-url-template="{% url 'finances:export-presupuesto-item' item.id 'PLACEHOLDER' %}">
+                                    <i class="fas fa-share mr-1"></i>Exportar
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">Aún no has agregado items a este presupuesto.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.export-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const selected = Array.from(document.querySelectorAll('.income-checkbox:checked')).map(cb => cb.value);
+            if (selected.length === 0) {
+                alert('Selecciona al menos un ingreso disponible para exportar el item.');
+                return;
+            }
+            const urlTemplate = button.dataset.urlTemplate;
+            const targetUrl = urlTemplate.replace('PLACEHOLDER', selected.join(','));
+            window.location.href = targetUrl;
+        });
+    });
+</script>
+{% endblock %}
