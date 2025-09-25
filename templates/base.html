@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Control Financiero{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#023047',
+                        'primary': '#219EBC',
+                        'primary-light': '#8ECAE6',
+                        'warning': '#FFB703',
+                        'danger': '#FB8500',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Animaciones personalizadas */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #8ECAE6;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #219EBC;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-primary-dark shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'finances:flow-list' %}" class="text-white text-xl font-bold hover:text-primary-light transition">
+                        <i class="fas fa-chart-line mr-2"></i>Control Financiero
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'dashboard' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="{% url 'finances:flow-list' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-calendar"></i> Flujos Anuales
+                    </a>
+                    <a href="{% url 'finances:category-list' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-tags"></i> Categorías
+                    </a>
+                    <a href="{% url 'finances:presupuesto-list' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-clipboard-list"></i> Presupuestos
+                    </a>
+                    <a href="{% url 'finances:remnant-list' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-coins"></i> Remanentes
+                    </a>
+                    {% if user.is_authenticated %}
+                    <div class="relative group">
+                        <button class="text-white hover:text-primary-light transition flex items-center">
+                            <i class="fas fa-user-circle mr-1"></i> {{ user.email|truncatechars:20 }}
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-50">
+                            <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-primary-light hover:text-white transition">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for message in messages %}
+        <div class="fade-in alert mb-4 p-4 rounded-lg shadow-md
+            {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500
+            {% elif message.tags == 'error' %}bg-red-100 text-red-800 border-l-4 border-danger
+            {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border-l-4 border-warning
+            {% else %}bg-blue-100 text-blue-800 border-l-4 border-primary
+            {% endif %}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle mr-2"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle mr-2"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-xl hover:opacity-75">&times;</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-primary-dark text-white mt-auto py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2024 Control Financiero. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script>
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

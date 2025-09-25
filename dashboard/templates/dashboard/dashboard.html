@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Control Life{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary to-primary-dark text-white py-8 px-4 rounded-lg shadow-lg mb-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-2">
+                <i class="fas fa-home mr-2"></i> Dashboard
+            </h1>
+            <p class="text-white/80">
+                Bienvenido, {{ user.email }}
+            </p>
+            <div class="mt-4 flex items-center space-x-4">
+                <span class="text-sm text-white/70">
+                    <i class="fas fa-clock mr-1"></i> 
+                    {% now "l, d \d\e F \d\e Y - H:i" %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Apps Activas</p>
+                    <p class="text-2xl font-bold text-primary-dark">{{ apps|length }}</p>
+                </div>
+                <i class="fas fa-th-large text-3xl text-primary-light"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-warning">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Último Acceso</p>
+                    <p class="text-lg font-semibold text-primary-dark">Hoy</p>
+                </div>
+                <i class="fas fa-clock text-3xl text-warning"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary-light">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Estado</p>
+                    <p class="text-lg font-semibold text-green-600">Activo</p>
+                </div>
+                <i class="fas fa-check-circle text-3xl text-green-500"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-danger">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Notificaciones</p>
+                    <p class="text-2xl font-bold text-primary-dark">0</p>
+                </div>
+                <i class="fas fa-bell text-3xl text-danger"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apps Grid -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">
+            <i class="fas fa-apps mr-2"></i> Aplicaciones Disponibles
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for app in apps %}
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group transform hover:scale-105">
+                <!-- App Header -->
+                <div class="{{ app.color }} p-6 text-white group-hover:opacity-90 transition-opacity">
+                    <div class="flex items-center justify-between mb-4">
+                        <i class="{{ app.icon }} text-4xl"></i>
+                        <span class="bg-white/20 px-2 py-1 rounded text-xs">Activa</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">{{ app.name }}</h3>
+                    <p class="text-white/80 text-sm">{{ app.description }}</p>
+                </div>
+                
+                <!-- App Stats -->
+                <div class="p-6">
+                    <div class="space-y-3 mb-4">
+                        {% for stat in app.stats %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 text-sm">{{ stat.label }}</span>
+                            <span class="font-semibold text-primary-dark">{{ stat.value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Action Button -->
+                    <a href="{% url app.url %}" 
+                       class="block w-full text-center bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-[1.02]">
+                        <i class="fas fa-arrow-right mr-2"></i> Acceder
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Placeholder para futuras apps -->
+            <div class="bg-white rounded-lg shadow-lg border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-gray-400 hover:border-primary-light transition-colors">
+                <i class="fas fa-plus-circle text-6xl mb-4"></i>
+                <p class="text-lg font-semibold">Próximamente</p>
+                <p class="text-sm text-center mt-2">Nuevas aplicaciones serán agregadas aquí</p>
+            </div>
+
+            <!-- Otra placeholder -->
+            <div class="bg-white rounded-lg shadow-lg border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-gray-400 hover:border-primary-light transition-colors">
+                <i class="fas fa-puzzle-piece text-6xl mb-4"></i>
+                <p class="text-lg font-semibold">En Desarrollo</p>
+                <p class="text-sm text-center mt-2">Estamos trabajando en nuevas funcionalidades</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-primary-dark mb-4">
+            <i class="fas fa-bolt mr-2"></i> Acciones Rápidas
+        </h3>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'finances:flow-create' %}" 
+               class="bg-primary-light hover:bg-primary text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nuevo Flujo Anual
+            </a>
+            <a href="{% url 'finances:category-list' %}" 
+               class="bg-warning hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-tags mr-2"></i> Gestionar Categorías
+            </a>
+            <a href="{% url 'finances:presupuesto-list' %}" 
+               class="bg-danger hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-clipboard-list mr-2"></i> Ver Presupuestos
+            </a>
+            <a href="{% url 'finances:remnant-list' %}" 
+               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-coins mr-2"></i> Remanentes
+            </a>
+            <a href="{% url 'admin:index' %}" 
+               class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-cog mr-2"></i> Admin Panel
+            </a>
+            <a href="{% url 'users:logout' %}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity (opcional, para futuro) -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-primary-dark mb-4">
+            <i class="fas fa-history mr-2"></i> Actividad Reciente
+        </h3>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span class="text-gray-700">Sistema iniciado correctamente</span>
+                </div>
+                <span class="text-sm text-gray-500">Ahora</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                    <span class="text-gray-700">Sesión iniciada</span>
+                </div>
+                <span class="text-sm text-gray-500">Hace unos momentos</span>
+            </div>
+            <div class="flex items-center justify-between py-2">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full mr-3"></div>
+                    <span class="text-gray-500">Sin más actividades recientes</span>
+                </div>
+                <span class="text-sm text-gray-500">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .grid > div {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+    
+    .grid > div:nth-child(1) { animation-delay: 0.1s; }
+    .grid > div:nth-child(2) { animation-delay: 0.2s; }
+    .grid > div:nth-child(3) { animation-delay: 0.3s; }
+    .grid > div:nth-child(4) { animation-delay: 0.4s; }
+    .grid > div:nth-child(5) { animation-delay: 0.5s; }
+    .grid > div:nth-child(6) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Actualizar hora cada minuto
+    function updateTime() {
+        const now = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        const timeString = now.toLocaleDateString('es-CL', options);
+        const timeElement = document.querySelector('.fa-clock').parentElement;
+        if (timeElement) {
+            timeElement.innerHTML = '<i class="fas fa-clock mr-1"></i> ' + timeString;
+        }
+    }
+    
+    // Actualizar cada minuto
+    setInterval(updateTime, 60000);
+    
+    // Efecto hover en las cards
+    document.querySelectorAll('.group').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+</script>
+{% endblock %}
