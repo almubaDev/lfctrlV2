@@ -1,0 +1,123 @@
+<!-- finances/templates/finances/remnant_list.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Remanentes - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-coins mr-2"></i>Remanentes
+            </h1>
+            {% if annual_flow %}
+            <p class="text-gray-600 mt-2">
+                <i class="fas fa-calendar mr-1"></i>Año {{ annual_flow.year }}
+                {% if annual_flow.is_closed %}
+                <span class="ml-2 bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs">
+                    <i class="fas fa-lock"></i> Año Cerrado
+                </span>
+                {% endif %}
+            </p>
+            {% else %}
+            <p class="text-gray-600 mt-2">Todos los remanentes acumulados</p>
+            {% endif %}
+        </div>
+        <div class="text-right">
+            <div class="mb-4">
+                <h3 class="text-sm text-gray-500">Total Acumulado</h3>
+                <p class="text-3xl font-bold text-green-600">${{ total_remnants|format_money }}</p>
+            </div>
+            {% if total_remnants > 0 and annual_flow %}
+            <a href="{% url 'finances:withdraw-remnant' annual_flow.id %}" 
+               class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-money-bill-transfer mr-2"></i>Retirar Remanente
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Remnants Table -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-primary to-primary-dark text-white">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                            Fecha
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                            Año
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                            Mes
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th class="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider">
+                            Monto
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for remnant in remnants %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ remnant.transfer_date|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ remnant.income_book.annual_flow.year }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ remnant.income_book.get_month_display }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ remnant.description }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                            <span class="{% if remnant.amount < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                                ${{ remnant.amount|format_money }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <a href="{% url 'finances:remnant-detail' remnant.id %}" 
+                               class="text-primary hover:text-primary-dark transition">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-coins text-4xl mb-3"></i>
+                            <p>No hay remanentes registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-8">
+        {% if annual_flow %}
+        <a href="{% url 'finances:flow-detail' annual_flow.id %}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center transition">
+            <i class="fas fa-arrow-left mr-2"></i>Volver al Flujo Anual {{ annual_flow.year }}
+        </a>
+        {% else %}
+        <a href="{% url 'finances:flow-list' %}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center transition">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a Flujos Anuales
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

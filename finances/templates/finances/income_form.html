@@ -1,0 +1,89 @@
+<!-- finances/templates/finances/income_form.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Nuevo Ingreso - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-lg mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-plus-circle mr-2"></i>Nuevo Ingreso
+            </h1>
+            <p class="text-gray-600 mt-2">
+                <i class="fas fa-calendar mr-1"></i>
+                {{ book.get_month_display }} {{ book.annual_flow.year }}
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Description Field -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-1"></i>{{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="mt-2 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ form.description.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Amount Field -->
+                <div>
+                    <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-dollar-sign mr-1"></i>{{ form.amount.label }}
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                        {{ form.amount }}
+                    </div>
+                    {% if form.amount.errors %}
+                    <div class="mt-2 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ form.amount.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-save mr-2"></i>Guardar Ingreso
+                    </button>
+                    <a href="{% url 'finances:monthly-book-detail' book.id %}" 
+                       class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg text-center transition duration-200">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-format amount input
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.querySelector('input[name="amount"]');
+        if (amountInput) {
+            amountInput.style.paddingLeft = '2rem'; // Make room for $ sign
+            
+            amountInput.addEventListener('blur', function() {
+                let value = parseFloat(this.value);
+                if (!isNaN(value)) {
+                    this.value = value.toFixed(2);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

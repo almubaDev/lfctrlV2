@@ -1,0 +1,131 @@
+<!-- finances/templates/finances/annual_flow_list.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Flujos Anuales - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-calendar-alt mr-2"></i>Flujos Anuales
+            </h1>
+            <p class="text-gray-600 mt-2">Gestiona tus flujos financieros por año</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'finances:flow-create' %}" 
+               class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-plus mr-2"></i>Nuevo Flujo
+            </a>
+            <a href="{% url 'finances:category-list' %}" 
+               class="bg-danger hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-tags mr-2"></i>Categorías
+            </a>
+            <a href="{% url 'finances:presupuesto-list' %}" 
+               class="bg-warning hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-clipboard-list mr-2"></i>Presupuestos
+            </a>
+            <a href="{% url 'finances:remnant-list' %}" 
+               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-coins mr-2"></i>Remanentes
+            </a>
+        </div>
+    </div>
+
+    <!-- Flows Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for flow in flows %}
+        <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-primary to-primary-dark p-6 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-2xl font-bold">{{ flow.year }}</h2>
+                        <p class="text-white/80 text-sm mt-1">
+                            <i class="fas fa-clock mr-1"></i>
+                            Creado: {{ flow.created_at|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                    {% if flow.is_closed %}
+                    <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-lock mr-1"></i>Cerrado
+                    </span>
+                    {% else %}
+                    <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-lock-open mr-1"></i>Activo
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6">
+                <!-- Stats -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>Ingresos
+                        </span>
+                        <span class="font-semibold text-primary-dark">
+                            ${{ flow.get_total_income|format_money }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">
+                            <i class="fas fa-arrow-down text-danger mr-1"></i>Gastos
+                        </span>
+                        <span class="font-semibold text-primary-dark">
+                            ${{ flow.get_total_expenses|format_money }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t">
+                        <span class="text-gray-700 font-medium">Balance</span>
+                        <span class="font-bold {% if flow.get_total_income > flow.get_total_expenses %}text-green-600{% else %}text-red-600{% endif %}">
+                            ${{ flow.get_total_income|subtract:flow.get_total_expenses|format_money }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex space-x-2">
+                    <a href="{% url 'finances:flow-detail' flow.pk %}" 
+                       class="flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-eye mr-1"></i>Ver Detalle
+                    </a>
+                    <div class="relative group">
+                        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg transition">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-10">
+                            <a href="{% url 'finances:annual-report' flow.pk %}" 
+                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-file-alt mr-2"></i>Ver Informe
+                            </a>
+                            <a href="{% url 'finances:flow-delete' flow.pk %}" 
+                               class="block px-4 py-2 text-red-600 hover:bg-red-50"
+                               onclick="return confirm('¿Estás seguro de eliminar este flujo anual?')">
+                                <i class="fas fa-trash mr-2"></i>Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full">
+            <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+                <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay flujos anuales</h3>
+                <p class="text-gray-500 mb-6">Comienza creando tu primer flujo anual</p>
+                <a href="{% url 'finances:flow-create' %}" 
+                   class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg inline-flex items-center transition">
+                    <i class="fas fa-plus mr-2"></i>Crear Flujo Anual
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

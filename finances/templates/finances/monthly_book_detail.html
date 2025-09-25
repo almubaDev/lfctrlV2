@@ -1,0 +1,156 @@
+<!-- finances/templates/finances/monthly_book_detail.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}{{ book.get_month_display }} {{ book.annual_flow.year }} - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-book mr-2"></i>{{ book.get_month_display }} {{ book.annual_flow.year }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+                {% if book.is_closed %}
+                <span class="text-red-600"><i class="fas fa-lock mr-1"></i>Mes cerrado</span>
+                {% else %}
+                <span class="text-green-600"><i class="fas fa-lock-open mr-1"></i>Mes activo</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="flex space-x-3">
+            {% if not book.is_closed and not book.annual_flow.is_closed %}
+            <a href="{% url 'finances:add-income' book.id %}" 
+               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-plus mr-2"></i>Nuevo Ingreso
+            </a>
+            {% endif %}
+            <a href="{% url 'finances:flow-detail' book.annual_flow.pk %}" 
+               class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>Volver al Año
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {% if book.month > 1 %}
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Remanente Anterior</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ book.get_previous_remnant|format_money }}</p>
+                </div>
+                <i class="fas fa-history text-3xl text-blue-500"></i>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Ingresos</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ total_month_incomes|format_money }}</p>
+                </div>
+                <i class="fas fa-arrow-up text-3xl text-green-500"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-danger">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Gastos</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ total_month_expenses|format_money }}</p>
+                </div>
+                <i class="fas fa-arrow-down text-3xl text-danger"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Balance</p>
+                    <p class="text-2xl font-bold {% if month_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ${{ month_balance|format_money }}
+                    </p>
+                </div>
+                <i class="fas fa-balance-scale text-3xl text-primary"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incomes Table -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-primary-dark text-white p-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold">
+                <i class="fas fa-list mr-2"></i>Ingresos del Mes
+            </h2>
+            {% if not book.is_closed and not book.annual_flow.is_closed %}
+            <a href="{% url 'finances:add-income' book.id %}" 
+               class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded transition">
+                <i class="fas fa-plus mr-1"></i>Agregar
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fecha
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Monto
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Saldo Actual
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Gastos
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for income in incomes %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ income.date|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ income.description }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${{ income.amount|format_money }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <span class="{% if income.current_balance > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ income.current_balance|format_money }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="bg-primary-light text-primary-dark px-2 py-1 rounded-full text-xs font-semibold">
+                                {{ income.expenses_count }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <div class="flex justify-center space-x-2">
+                                <a href="{% url 'finances:income-detail' income.id %}" 
+                                   class="text-primary hover:text-primary-dark transition">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if not book.is_closed and not book.annual_flow.is_closed %}
+                                <a href="{% url 'finances:income-delete' income.id %}" 
+                                   class="text-danger hover:text-red-700 transition"
+                                   onclick="return confirm('¿Eliminar este ingreso?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                {% endif %}

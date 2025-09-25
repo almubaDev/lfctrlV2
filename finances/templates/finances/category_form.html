@@ -1,0 +1,72 @@
+<!-- finances/templates/finances/category_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ object.pk|yesno:"Editar,Nueva" }} Categoría - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-lg mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-{{ object.pk|yesno:'edit,plus' }} mr-2"></i>
+                {{ object.pk|yesno:"Editar,Nueva" }} Categoría
+            </h1>
+            <p class="text-gray-600 mt-2">
+                {% if object.pk %}
+                Modifica los datos de la categoría
+                {% else %}
+                Crea una nueva categoría para organizar tus gastos
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Name Field -->
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-tag mr-1"></i>{{ form.name.label }}
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="mt-2 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ form.name.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Description Field -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-1"></i>{{ form.description.label }} (Opcional)
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="mt-2 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ form.description.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 bg-danger hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <a href="{% url 'finances:category-list' %}" 
+                       class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg text-center transition duration-200">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

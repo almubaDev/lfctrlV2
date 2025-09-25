@@ -1,0 +1,73 @@
+<!-- finances/templates/finances/annual_flow_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Flujo Anual - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-lg mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-calendar-plus mr-2"></i>Nuevo Flujo Anual
+            </h1>
+            <p class="text-gray-600 mt-2">Crea un nuevo flujo para gestionar tus finanzas anuales</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Year Field -->
+                <div>
+                    <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar mr-1"></i>Año
+                    </label>
+                    {{ form.year }}
+                    {% if form.year.errors %}
+                    <div class="mt-2 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ form.year.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <p class="mt-2 text-sm text-gray-500">
+                        Al crear el flujo, se generarán automáticamente los 12 libros mensuales
+                    </p>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-primary-light/20 border border-primary-light rounded-lg p-4">
+                    <h3 class="font-semibold text-primary-dark mb-2">
+                        <i class="fas fa-info-circle mr-1"></i>Información importante
+                    </h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Se crearán 12 libros mensuales (Enero a Diciembre)</li>
+                        <li>• Podrás registrar ingresos y gastos mes a mes</li>
+                        <li>• Al cerrar cada mes, se calculará el remanente automáticamente</li>
+                        <li>• El año solo podrá cerrarse cuando todos los meses estén cerrados</li>
+                    </ul>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-save mr-2"></i>Crear Flujo Anual
+                    </button>
+                    <a href="{% url 'finances:flow-list' %}" 
+                       class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg text-center transition duration-200">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Text -->
+        <div class="mt-6 text-center text-sm text-gray-500">
+            <i class="fas fa-question-circle mr-1"></i>
+            ¿Necesitas ayuda? El flujo anual te permite organizar tus finanzas de forma estructurada
+        </div>
+    </div>
+</div>
+{% endblock %}

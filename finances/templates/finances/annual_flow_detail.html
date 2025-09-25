@@ -1,0 +1,175 @@
+<!-- finances/templates/finances/annual_flow_detail.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Flujo {{ flow.year }} - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">
+                <i class="fas fa-calendar mr-2"></i>Flujo Anual {{ flow.year }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+                {% if flow.is_closed %}
+                <span class="text-red-600"><i class="fas fa-lock mr-1"></i>Año cerrado</span>
+                {% else %}
+                <span class="text-green-600"><i class="fas fa-lock-open mr-1"></i>Año activo</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'finances:annual-report' flow.pk %}" 
+               class="bg-info hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-file-alt mr-2"></i>Ver Informe
+            </a>
+            <a href="{% url 'finances:flow-list' %}" 
+               class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Ingresos</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ flow.get_total_income|format_money }}</p>
+                </div>
+                <i class="fas fa-arrow-up text-3xl text-green-500"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-danger">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Gastos</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ flow.get_total_expenses|format_money }}</p>
+                </div>
+                <i class="fas fa-arrow-down text-3xl text-danger"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Balance</p>
+                    <p class="text-2xl font-bold {% if flow.get_total_income > flow.get_total_expenses %}text-green-600{% else %}text-red-600{% endif %}">
+                        ${{ flow.get_total_income|subtract:flow.get_total_expenses|format_money }}
+                    </p>
+                </div>
+                <i class="fas fa-balance-scale text-3xl text-primary"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-warning">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Remanente Total</p>
+                    <p class="text-2xl font-bold text-primary-dark">${{ flow.get_accumulated_remnant|format_money }}</p>
+                </div>
+                <i class="fas fa-coins text-3xl text-warning"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Books Grid -->
+    <h2 class="text-xl font-semibold text-primary-dark mb-4">
+        <i class="fas fa-book mr-2"></i>Libros Mensuales
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {% for book in income_books %}
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 
+                    {% if book.is_current %}ring-2 ring-primary{% endif %}
+                    {% if not book.is_current %}opacity-90{% endif %}">
+            <div class="p-4">
+                <!-- Month Header -->
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-primary-dark">
+                        {{ book.get_month_display }}
+                    </h3>
+                    {% if book.is_closed %}
+                    <span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-lock text-xs"></i> Cerrado
+                    </span>
+                    {% elif book.is_current %}
+                    <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-calendar-check text-xs"></i> Actual
+                    </span>
+                    {% else %}
+                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-lock-open text-xs"></i> Abierto
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Stats -->
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Ingresos:</span>
+                        <span class="font-medium">${{ book.get_total_income|format_money }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Gastos:</span>
+                        <span class="font-medium">${{ book.get_total_expenses|format_money }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm pt-2 border-t">
+                        <span class="text-gray-700">Balance:</span>
+                        <span class="font-bold {% if book.get_current_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ${{ book.get_current_balance|format_money }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex space-x-2">
+                    <a href="{% url 'finances:monthly-book-detail' book.pk %}" 
+                       class="flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2 px-3 rounded text-sm transition">
+                        <i class="fas fa-eye mr-1"></i>Ver
+                    </a>
+                    {% if not book.is_closed and not flow.is_closed %}
+                    <form action="{% url 'finances:close-month' book.pk %}" method="post" class="flex-1">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="w-full bg-warning hover:bg-yellow-600 text-white py-2 px-3 rounded text-sm transition"
+                                onclick="return confirm('¿Cerrar {{ book.get_month_display }}? Esta acción no se puede deshacer.')">
+                            <i class="fas fa-lock mr-1"></i>Cerrar
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Actions Footer -->
+    {% if not flow.is_closed and flow.income_books.all|length == 12 %}
+    <div class="mt-8 bg-yellow-50 border border-warning rounded-lg p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold text-primary-dark">
+                    <i class="fas fa-exclamation-triangle text-warning mr-2"></i>
+                    Cierre del Año
+                </h3>
+                <p class="text-gray-600 mt-1">
+                    {% with closed_count=flow.income_books.filter.is_closed.count %}
+                    {{ closed_count }} de 12 meses cerrados. 
+                    {% if closed_count == 12 %}
+                    Todos los meses están cerrados, puedes cerrar el año.
+                    {% else %}
+                    Cierra todos los meses antes de cerrar el año.
+                    {% endif %}
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

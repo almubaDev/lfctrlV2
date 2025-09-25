@@ -1,0 +1,106 @@
+<!-- finances/templates/finances/remnant_detail.html -->
+{% extends 'base.html' %}
+{% load expense_filters %}
+
+{% block title %}Detalle de Remanente - Control Financiero{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-primary-dark">
+            <i class="fas fa-coins mr-2"></i>Detalle de Remanente
+        </h1>
+        {% if annual_flow %}
+        <a href="{% url 'finances:flow-remnants' annual_flow.pk %}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+        {% else %}
+        <a href="{% url 'finances:remnant-list' %}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+        {% endif %}
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Remnant Information -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-primary-dark mb-4">
+                <i class="fas fa-info-circle mr-2"></i>Información del Remanente
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="border-b pb-3">
+                    <p class="text-sm text-gray-500">Año</p>
+                    <p class="text-lg font-medium">{{ income_book.annual_flow.year }}</p>
+                </div>
+                
+                <div class="border-b pb-3">
+                    <p class="text-sm text-gray-500">Mes</p>
+                    <p class="text-lg font-medium">{{ income_book.get_month_display }}</p>
+                </div>
+                
+                <div class="border-b pb-3">
+                    <p class="text-sm text-gray-500">Fecha de Transferencia</p>
+                    <p class="text-lg font-medium">{{ remnant.transfer_date|date:"d/m/Y H:i" }}</p>
+                </div>
+                
+                <div class="border-b pb-3">
+                    <p class="text-sm text-gray-500">Descripción</p>
+                    <p class="text-lg font-medium">{{ remnant.description }}</p>
+                </div>
+                
+                <div>
+                    <p class="text-sm text-gray-500">Monto</p>
+                    <p class="text-3xl font-bold {% if remnant.amount < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                        ${{ remnant.amount|format_money }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month Summary -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-primary-dark mb-4">
+                <i class="fas fa-chart-pie mr-2"></i>Resumen del Mes
+            </h2>
+            
+            <div class="space-y-4">
+                {% if income_book.month > 1 %}
+                <div class="flex justify-between items-center border-b pb-3">
+                    <span class="text-gray-600">Remanente del Mes Anterior:</span>
+                    <span class="font-medium">${{ income_book.get_previous_remnant|format_money }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex justify-between items-center border-b pb-3">
+                    <span class="text-gray-600">Total Ingresos:</span>
+                    <span class="font-medium">${{ income_book.get_total_income|format_money }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center border-b pb-3">
+                    <span class="text-gray-600">Total Gastos:</span>
+                    <span class="font-medium text-red-600">${{ income_book.get_total_expenses|format_money }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-gray-700 font-semibold">Balance Final:</span>
+                    <span class="text-xl font-bold {% if income_book.get_current_balance > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ${{ income_book.get_current_balance|format_money }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Visual Indicator -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>
+                    <p class="text-sm text-gray-600">
+                        Este remanente fue generado al cerrar el mes de {{ income_book.get_month_display }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
