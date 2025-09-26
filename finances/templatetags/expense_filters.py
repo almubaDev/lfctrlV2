@@ -6,7 +6,13 @@ register = template.Library()
 @register.filter
 def format_money(value):
     try:
-        formatted = number_format(value, decimal_pos=0, use_l10n=True)
+        formatted = number_format(
+            value,
+            decimal_pos=0,
+            use_l10n=True,
+            force_grouping=True,
+        )
+
         return formatted.replace(",", ".")
     except (ValueError, TypeError):
         return "0"
