@@ -13,9 +13,15 @@
             </h1>
             <p class="text-gray-600">Organiza y realiza seguimiento de tus objetivos financieros.</p>
         </div>
-        <a href="{% url 'finances:presupuesto-create' %}" class="inline-flex items-center px-5 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
-            <i class="fas fa-plus mr-2"></i>Nuevo presupuesto
-        </a>
+        <div class="flex space-x-3">
+            <a href="{% url 'finances:flow-list' %}" 
+        `      class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+        `       <i class="fas fa-arrow-left mr-2"></i>Volver a Flujos Anuales
+        `   </a>
+            <a href="{% url 'finances:presupuesto-create' %}" class="inline-flex items-center px-5 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+                <i class="fas fa-plus mr-2"></i>Nuevo presupuesto
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
