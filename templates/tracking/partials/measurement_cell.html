@@ -1,0 +1,10 @@
+{% if value.value %}
+<div class="font-semibold text-gray-900">{{ value.value }} cm</div>
+{% if value.change_symbol %}
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold {% if value.change_symbol == '↑' %}bg-red-100 text-red-600{% elif value.change_symbol == '↓' %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+    {{ value.change_symbol }} {{ value.change|floatformat:1 }} cm
+</span>
+{% endif %}
+{% else %}
+<span class="text-gray-400">—</span>
+{% endif %}

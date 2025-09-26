@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Seguimiento de Peso{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">Seguimiento de Peso</h1>
+            <p class="text-gray-600">Registra tu peso diario y visualiza tu progreso con estadísticas y gráficas.</p>
+        </div>
+        <a href="{% url 'tracking:measurements' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+            <i class="fas fa-ruler-combined mr-2"></i> Ver Medidas Corporales
+        </a>
+    </div>
+
+    <div class="bg-white shadow rounded-xl p-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">Registrar / Actualizar Peso</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    {{ form.weight.label_tag }}
+                    {{ form.weight }}
+                </div>
+                <div class="md:col-span-2">
+                    {{ form.notes.label_tag }}
+                    {{ form.notes }}
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center px-5 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+                    <i class="fas fa-save mr-2"></i> Guardar Peso
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if stats %}
+    <div>
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">Resumen de Progreso</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white shadow rounded-xl p-5 border-l-4 border-primary">
+                <p class="text-sm text-gray-500">Peso Inicial</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ stats.inicio.peso }} kg</p>
+                <p class="text-xs text-gray-400">{{ stats.inicio.fecha }}</p>
+            </div>
+            <div class="bg-white shadow rounded-xl p-5 border-l-4 border-primary-dark">
+                <p class="text-sm text-gray-500">Peso Actual</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ stats.actual.peso }} kg</p>
+                <p class="text-xs text-gray-400">{{ stats.actual.fecha }}</p>
+            </div>
+            <div class="bg-white shadow rounded-xl p-5 border-l-4 border-green-500">
+                <p class="text-sm text-gray-500">Cambio Total</p>
+                <p class="text-2xl font-semibold {% if stats.cambio_total <= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                    {{ stats.cambio_total|floatformat:1 }} kg
+                </p>
+                <p class="text-xs text-gray-400">Desde el inicio</p>
+            </div>
+            <div class="bg-white shadow rounded-xl p-5 border-l-4 border-warning">
+                <p class="text-sm text-gray-500">Promedio Último Mes</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ stats.promedio_mes|default:stats.actual.peso|floatformat:1 }} kg</p>
+                <p class="text-xs text-gray-400">Cambio mes: {{ stats.cambio_mes|floatformat:1 }} kg</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="bg-white shadow rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
+            <h2 class="text-xl font-semibold text-primary-dark">Evolución del Peso</h2>
+            <div class="flex gap-2">
+                <button data-target="daily" class="chart-tab active px-3 py-1 rounded-lg bg-primary text-white text-sm">Diario</button>
+                <button data-target="weekly" class="chart-tab px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300">Semanal</button>
+                <button data-target="monthly" class="chart-tab px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300">Mensual</button>
+            </div>
+        </div>
+        <div class="relative h-80">
+            <canvas id="weightChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
+            <h2 class="text-xl font-semibold text-primary-dark">Historial de Registros</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peso</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cambio</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for record in weight_records %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 text-sm text-gray-700">{{ record.date }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900 font-semibold">{{ record.weight }} kg</td>
+                        <td class="px-4 py-2 text-sm">
+                            {% if record.change_symbol %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold {% if record.change_symbol == '↑' %}bg-red-100 text-red-600{% elif record.change_symbol == '↓' %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    {{ record.change_symbol }} {{ record.change|floatformat:1 }} kg
+                                </span>
+                            {% else %}
+                                <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-700">{{ record.notes|default:'—' }}</td>
+                        <td class="px-4 py-2 text-sm text-right">
+                            <form method="post" action="{% url 'tracking:weight_delete' record.id %}" onsubmit="return confirm('¿Eliminar registro de peso?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-800 font-semibold">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">Aún no hay registros de peso.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartData = JSON.parse('{{ chart_data|escapejs }}');
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    const colors = {
+        primary: '#219EBC',
+        primaryLight: '#8ECAE6',
+        primaryDark: '#023047'
+    };
+
+    function buildDataset(type) {
+        if (type === 'daily') {
+            return {
+                labels: chartData.daily.map(item => item.date),
+                datasets: [{
+                    label: 'Peso (kg)',
+                    data: chartData.daily.map(item => item.weight),
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primaryLight,
+                    tension: 0.3,
+                    fill: true
+                }]
+            };
+        }
+        if (type === 'weekly') {
+            return {
+                labels: Object.keys(chartData.weekly),
+                datasets: [{
+                    label: 'Peso promedio semanal (kg)',
+                    data: Object.values(chartData.weekly),
+                    borderColor: colors.primaryDark,
+                    backgroundColor: colors.primary,
+                    tension: 0.3,
+                    fill: true
+                }]
+            };
+        }
+        return {
+            labels: Object.keys(chartData.monthly),
+            datasets: [{
+                label: 'Peso promedio mensual (kg)',
+                data: Object.values(chartData.monthly),
+                borderColor: colors.primary,
+                backgroundColor: colors.primaryDark,
+                tension: 0.3,
+                fill: true
+            }]
+        };
+    }
+
+    let currentType = 'daily';
+    const weightChart = new Chart(ctx, {
+        type: 'line',
+        data: buildDataset(currentType),
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: { callback: value => `${value} kg` }
+                }
+            }
+        }
+    });
+
+    document.querySelectorAll('.chart-tab').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.chart-tab').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'active');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            button.classList.add('bg-primary', 'text-white', 'active');
+            button.classList.remove('bg-gray-200', 'text-gray-700');
+            currentType = button.dataset.target;
+            weightChart.data = buildDataset(currentType);
+            weightChart.update();
+        });
+    });
+</script>
+{% endblock %}
