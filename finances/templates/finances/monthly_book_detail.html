@@ -21,12 +21,6 @@
             </p>
         </div>
         <div class="flex space-x-3">
-            {% if not book.is_closed and not book.annual_flow.is_closed %}
-            <a href="{% url 'finances:add-income' book.id %}" 
-               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                <i class="fas fa-plus mr-2"></i>Nuevo Ingreso
-            </a>
-            {% endif %}
             <a href="{% url 'finances:flow-detail' book.annual_flow.pk %}" 
                class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i>Volver al Año
