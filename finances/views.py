@@ -38,6 +38,7 @@ class AnnualFlowDetailView(LoginRequiredMixin, DetailView):
         for book in books:
             book.is_current = book.month == current_month
         context['income_books'] = books
+        context['closed_month_count'] = books.filter(is_closed=True).count()
         return context
 
 class AnnualFlowCreateView(LoginRequiredMixin, CreateView):

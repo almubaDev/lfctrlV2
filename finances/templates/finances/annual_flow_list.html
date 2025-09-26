@@ -80,6 +80,14 @@
                             ${{ flow.get_total_expenses|format_money }}
                         </span>
                     </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">
+                            <i class="fas fa-coins text-warning mr-1"></i>Remanente
+                        </span>
+                        <span class="font-semibold text-primary-dark">
+                            ${{ flow.get_accumulated_remnant|format_money }}
+                        </span>
+                    </div>
                     <div class="flex justify-between items-center pt-2 border-t">
                         <span class="text-gray-700 font-medium">Balance</span>
                         <span class="font-bold {% if flow.get_total_income > flow.get_total_expenses %}text-green-600{% else %}text-red-600{% endif %}">
@@ -89,27 +97,26 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex space-x-2">
-                    <a href="{% url 'finances:flow-detail' flow.pk %}" 
-                       class="flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2 px-4 rounded-lg transition">
+                <div class="flex flex-wrap gap-2">
+                    <a href="{% url 'finances:flow-detail' flow.pk %}"
+                       class="w-full sm:flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2 px-4 rounded-lg transition">
                         <i class="fas fa-eye mr-1"></i>Ver Detalle
                     </a>
-                    <div class="relative group">
-                        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg transition">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-10">
-                            <a href="{% url 'finances:annual-report' flow.pk %}" 
-                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-file-alt mr-2"></i>Ver Informe
-                            </a>
-                            <a href="{% url 'finances:flow-delete' flow.pk %}" 
-                               class="block px-4 py-2 text-red-600 hover:bg-red-50"
-                               onclick="return confirm('¿Estás seguro de eliminar este flujo anual?')">
-                                <i class="fas fa-trash mr-2"></i>Eliminar
-                            </a>
-                        </div>
-                    </div>
+                    <a href="{% url 'finances:annual-report' flow.pk %}"
+                       class="w-full sm:flex-1 bg-info hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-file-alt mr-1"></i>Ver Informe
+                    </a>
+                    {% if flow.get_accumulated_remnant > 0 %}
+                    <a href="{% url 'finances:withdraw-remnant' flow.pk %}"
+                       class="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-money-bill-transfer mr-1"></i>Retirar Remanente
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'finances:flow-delete' flow.pk %}"
+                       class="w-full sm:flex-1 bg-red-100 hover:bg-red-200 text-red-600 text-center py-2 px-4 rounded-lg transition"
+                       onclick="return confirm('¿Estás seguro de eliminar este flujo anual?')">
+                        <i class="fas fa-trash mr-1"></i>Eliminar
+                    </a>
                 </div>
             </div>
         </div>

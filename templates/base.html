@@ -61,13 +61,13 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- Navbar -->
     <nav class="bg-primary-dark shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'finances:flow-list' %}" class="text-white text-xl font-bold hover:text-primary-light transition">
+                    <a href="{% url 'dashboard' %}" class="text-white text-xl font-bold hover:text-primary-light transition">
                         <i class="fas fa-chart-line mr-2"></i>Control Financiero
                     </a>
                 </div>
@@ -76,17 +76,8 @@
                     <a href="{% url 'dashboard' %}" class="text-white hover:text-primary-light transition">
                         <i class="fas fa-home"></i> Dashboard
                     </a>
-                    <a href="{% url 'finances:flow-list' %}" class="text-white hover:text-primary-light transition">
-                        <i class="fas fa-calendar"></i> Flujos Anuales
-                    </a>
-                    <a href="{% url 'finances:category-list' %}" class="text-white hover:text-primary-light transition">
-                        <i class="fas fa-tags"></i> Categorías
-                    </a>
-                    <a href="{% url 'finances:presupuesto-list' %}" class="text-white hover:text-primary-light transition">
-                        <i class="fas fa-clipboard-list"></i> Presupuestos
-                    </a>
-                    <a href="{% url 'finances:remnant-list' %}" class="text-white hover:text-primary-light transition">
-                        <i class="fas fa-coins"></i> Remanentes
+                    <a href="{% url 'admin:index' %}" class="text-white hover:text-primary-light transition">
+                        <i class="fas fa-cog"></i> Admin Panel
                     </a>
                     {% if user.is_authenticated %}
                     <div class="relative group">
@@ -137,7 +128,7 @@
     {% endif %}
     
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 py-8 flex-1 w-full">
         {% block content %}{% endblock %}
     </main>
     
