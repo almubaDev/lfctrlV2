@@ -74,6 +74,18 @@
                 </div>
                 <i class="fas fa-coins text-3xl text-warning"></i>
             </div>
+            <div class="mt-4 space-y-2">
+                <a href="{% url 'finances:flow-remnants' flow.pk %}"
+                   class="block w-full bg-primary hover:bg-primary-dark text-white text-center py-2 px-3 rounded text-sm transition">
+                    <i class="fas fa-list mr-1"></i>Ver remanentes
+                </a>
+                {% if flow.get_accumulated_remnant > 0 %}
+                <a href="{% url 'finances:withdraw-remnant' flow.pk %}"
+                   class="block w-full bg-warning hover:bg-yellow-600 text-white text-center py-2 px-3 rounded text-sm transition">
+                    <i class="fas fa-hand-holding-usd mr-1"></i>Retirar remanente
+                </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
