@@ -86,6 +86,12 @@
                 </a>
                 {% endif %}
             </div>
+            <div class="mt-4">
+                <a href="{% url 'finances:flow-remnants' flow.pk %}"
+                   class="block w-full bg-primary hover:bg-primary-dark text-white text-center py-2 px-3 rounded text-sm transition">
+                    <i class="fas fa-list mr-1"></i>Ver remanentes
+                </a>
+            </div>
         </div>
     </div>
 
