@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Comparar Fotos{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">Comparador de Fotos</h1>
+            <p class="text-gray-600">Selecciona un ángulo y dos fechas para evaluar visualmente tu progreso.</p>
+        </div>
+        <a href="{% url 'tracking:photos' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+            <i class="fas fa-calendar-alt mr-2"></i> Volver al Calendario
+        </a>
+    </div>
+
+    <div class="bg-white shadow rounded-xl p-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">Configurar comparación</h2>
+        <form method="get" class="grid md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="photo_type" class="block text-sm font-medium text-gray-700">Tipo de foto</label>
+                <select id="photo_type" name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    {% for value, label in photos.model.PHOTO_TYPE_CHOICES %}
+                    <option value="{{ value }}" {% if value == photo_type %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="date1" class="block text-sm font-medium text-gray-700">Fecha 1</label>
+                <select id="date1" name="date1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">Selecciona...</option>
+                    {% for date in available_dates %}
+                    <option value="{{ date|date:'Y-m-d' }}" {% if date1 and date|date:'Y-m-d' == date1 %}selected{% endif %}>{{ date|date:'d \d\e F \d\e Y' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="date2" class="block text-sm font-medium text-gray-700">Fecha 2</label>
+                <select id="date2" name="date2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">Selecciona...</option>
+                    {% for date in available_dates %}
+                    <option value="{{ date|date:'Y-m-d' }}" {% if date2 and date|date:'Y-m-d' == date2 %}selected{% endif %}>{{ date|date:'d \d\e F \d\e Y' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Comparar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white shadow rounded-xl overflow-hidden">
+            <div class="p-4 border-b">
+                <h2 class="text-lg font-semibold text-primary-dark flex items-center gap-2">
+                    <i class="fas fa-calendar-day"></i>
+                    {% if photo1 %}
+                        {{ photo1.date|date:'d \d\e F \d\e Y' }}
+                    {% else %}
+                        Fecha 1
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="h-96 bg-gray-100 flex items-center justify-center">
+                {% if photo1 %}
+                    <img src="{{ photo1.photo.url }}" alt="Foto fecha 1" class="object-contain h-full w-full">
+                {% else %}
+                    <p class="text-gray-500">Selecciona una fecha disponible para ver la foto.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="bg-white shadow rounded-xl overflow-hidden">
+            <div class="p-4 border-b">
+                <h2 class="text-lg font-semibold text-primary-dark flex items-center gap-2">
+                    <i class="fas fa-calendar-day"></i>
+                    {% if photo2 %}
+                        {{ photo2.date|date:'d \d\e F \d\e Y' }}
+                    {% else %}
+                        Fecha 2
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="h-96 bg-gray-100 flex items-center justify-center">
+                {% if photo2 %}
+                    <img src="{{ photo2.photo.url }}" alt="Foto fecha 2" class="object-contain h-full w-full">
+                {% else %}
+                    <p class="text-gray-500">Selecciona una fecha disponible para ver la foto.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-xl p-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">Galería del ángulo seleccionado</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+            {% for photo in photos %}
+            <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div class="h-56 bg-gray-100">
+                    <img src="{{ photo.photo.url }}" alt="Foto {{ photo.date }}" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4 space-y-1 text-sm text-gray-600">
+                    <div><i class="fas fa-calendar mr-1"></i>{{ photo.date|date:'d/m/Y' }}</div>
+                    <div><i class="fas fa-sticky-note mr-1"></i>{{ photo.notes|default:'Sin notas' }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">Aún no hay fotos registradas para este ángulo.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
