@@ -10,9 +10,14 @@
             <h1 class="text-3xl font-bold text-primary-dark">Seguimiento de Peso</h1>
             <p class="text-gray-600">Registra tu peso diario y visualiza tu progreso con estadísticas y gráficas.</p>
         </div>
-        <a href="{% url 'tracking:measurements' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
-            <i class="fas fa-ruler-combined mr-2"></i> Ver Medidas Corporales
-        </a>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Accesos rápidos a seguimiento físico">
+            <a href="{% url 'tracking:measurements' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition font-semibold" title="Ir al control de medidas">
+                <i class="fas fa-ruler-combined mr-2"></i> Ver Medidas Corporales
+            </a>
+            <a href="{% url 'tracking:photos' %}" class="inline-flex items-center px-4 py-2 bg-primary-dark text-white rounded-lg shadow hover:bg-primary transition font-semibold" title="Abrir el diario fotográfico">
+                <i class="fas fa-camera mr-2"></i> Diario Fotográfico
+            </a>
+        </div>
     </div>
 
     <div class="grid xl:grid-cols-2 gap-6 items-start">
