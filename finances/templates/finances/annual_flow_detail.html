@@ -21,11 +21,17 @@
             </p>
         </div>
         <div class="flex space-x-3">
-            <a href="{% url 'finances:annual-report' flow.pk %}" 
+            {% if flow.get_accumulated_remnant > 0 %}
+            <a href="{% url 'finances:withdraw-remnant' flow.pk %}"
+               class="bg-success hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-hand-holding-usd mr-2"></i>Retirar Remanente
+            </a>
+            {% endif %}
+            <a href="{% url 'finances:annual-report' flow.pk %}"
                class="bg-info hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center">
                 <i class="fas fa-file-alt mr-2"></i>Ver Informe
             </a>
-            <a href="{% url 'finances:flow-list' %}" 
+            <a href="{% url 'finances:flow-list' %}"
                class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i>Volver
             </a>
@@ -158,14 +164,12 @@
                     Cierre del Año
                 </h3>
                 <p class="text-gray-600 mt-1">
-                    {% with closed_count=flow.income_books.filter.is_closed.count %}
-                    {{ closed_count }} de 12 meses cerrados. 
-                    {% if closed_count == 12 %}
+                    {{ closed_month_count }} de 12 meses cerrados.
+                    {% if closed_month_count == 12 %}
                     Todos los meses están cerrados, puedes cerrar el año.
                     {% else %}
                     Cierra todos los meses antes de cerrar el año.
                     {% endif %}
-                    {% endwith %}
                 </p>
             </div>
         </div>
