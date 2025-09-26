@@ -158,14 +158,12 @@
                     Cierre del Año
                 </h3>
                 <p class="text-gray-600 mt-1">
-                    {% with closed_count=flow.income_books.filter.is_closed.count %}
-                    {{ closed_count }} de 12 meses cerrados. 
-                    {% if closed_count == 12 %}
+                    {{ closed_month_count }} de 12 meses cerrados.
+                    {% if closed_month_count == 12 %}
                     Todos los meses están cerrados, puedes cerrar el año.
                     {% else %}
                     Cierra todos los meses antes de cerrar el año.
                     {% endif %}
-                    {% endwith %}
                 </p>
             </div>
         </div>
