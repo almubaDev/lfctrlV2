@@ -1,11 +1,20 @@
 from django import template
+from django.utils.formats import number_format
 
 register = template.Library()
 
 @register.filter
 def format_money(value):
     try:
-        return "{:,.0f}".format(float(value))
+        formatted = number_format(
+            value,
+            decimal_pos=0,
+            use_l10n=True,
+            force_grouping=True,
+        )
+        for separator in (",", "\xa0", " "):
+            formatted = formatted.replace(separator, ".")
+        return formatted
     except (ValueError, TypeError):
         return "0"
 

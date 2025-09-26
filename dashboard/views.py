@@ -1,10 +1,26 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation, ROUND_DOWN
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils.formats import number_format
 
 def format_currency(amount):
-    return f"${amount:,.2f}" if amount is not None else "$0.00"
+    try:
+        if amount in (None, ""):
+            return "$0"
+        normalized = Decimal(str(amount)).quantize(Decimal("1"), rounding=ROUND_DOWN)
+        formatted = number_format(
+            normalized,
+            decimal_pos=0,
+            use_l10n=True,
+            force_grouping=True,
+        )
+        for separator in (",", "\xa0", " "):
+            formatted = formatted.replace(separator, ".")
+        return f"${formatted}"
+    except (TypeError, ValueError, InvalidOperation):
+        return "$0"
 
 
 @login_required
@@ -46,7 +62,7 @@ def dashboard_view(request):
         recent_photos = 0
         finance_stats = [
             {'label': 'Flujos Anual', 'value': str(datetime.now().year)},
-            {'label': 'Remanentes', 'value': "$0.00"},
+            {'label': 'Remanentes', 'value': format_currency(0)},
         ]
 
     apps = [
