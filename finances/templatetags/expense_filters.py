@@ -12,9 +12,11 @@ def format_money(value):
             use_l10n=True,
             force_grouping=True,
         )
+
         for separator in (",", "\xa0", " "):
             formatted = formatted.replace(separator, ".")
         return formatted
+
     except (ValueError, TypeError):
         return "0"
 
