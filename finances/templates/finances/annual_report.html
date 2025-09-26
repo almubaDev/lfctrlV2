@@ -37,128 +37,185 @@
         </div>
     </div>
 
-    <!-- Monthly totals -->
-    <section class="bg-white rounded-2xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-primary-dark">Totales mensuales</h2>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-primary text-white">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Mes</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ingresos</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Gastos</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Balance</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                    {% for month_data in monthly_totals.values %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 font-medium text-gray-700">{{ month_data.name }}</td>
-                        <td class="px-4 py-3 text-green-600 font-semibold">${{ month_data.incomes|format_money }}</td>
-                        <td class="px-4 py-3 text-danger font-semibold">${{ month_data.expenses|format_money }}</td>
-                        <td class="px-4 py-3 font-semibold {% if month_data.incomes > month_data.expenses %}text-green-600{% else %}text-danger{% endif %}">
-                            ${{ month_data.incomes|subtract:month_data.expenses|format_money }}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="px-4 py-6 text-center text-gray-500">No hay información mensual registrada.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+    <!-- Report tabs -->
+    <section class="bg-white rounded-2xl shadow-lg">
+        <div class="flex flex-col">
+            <div class="flex flex-wrap border-b border-gray-200">
+                <button type="button" class="report-tab flex-1 min-w-[160px] px-4 py-3 text-center text-sm font-medium text-primary border-b-2 border-primary bg-primary/5"
+                    data-report-tab="monthly-totals">
+                    Totales mensuales
+                </button>
+                <button type="button" class="report-tab flex-1 min-w-[160px] px-4 py-3 text-center text-sm font-medium text-gray-600 hover:text-primary transition border-b-2 border-transparent"
+                    data-report-tab="expenses-by-category">
+                    Gastos por categoría
+                </button>
+                <button type="button" class="report-tab flex-1 min-w-[160px] px-4 py-3 text-center text-sm font-medium text-gray-600 hover:text-primary transition border-b-2 border-transparent"
+                    data-report-tab="income-detail">
+                    Detalle de ingresos y gastos asociados
+                </button>
+            </div>
 
-    <!-- Expenses by category -->
-    <section class="bg-white rounded-2xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-primary-dark">Gastos por categoría</h2>
-        </div>
-        {% if expenses_by_category %}
-        <div class="space-y-6">
-            {% for category, data in expenses_by_category.items %}
-            <div class="border border-gray-200 rounded-xl p-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 flex items-center">
-                        <i class="fas fa-tag text-primary mr-2"></i>{{ category.name }}
-                    </h3>
-                    <span class="text-sm font-semibold text-danger">Total: ${{ data.total|format_money }}</span>
+            <div class="report-tab-content p-6" data-report-content="monthly-totals">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-primary-dark">Totales mensuales</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead>
-                            <tr class="text-xs uppercase tracking-wide text-gray-500">
-                                {% for month, name in months_names.items %}
-                                <th class="px-3 py-2 text-left">{{ name }}</th>
-                                {% endfor %}
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Mes</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ingresos</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Gastos</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">Balance</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="text-sm text-gray-600">
-                                {% for month, name in months_names.items %}
-                                <td class="px-3 py-2">${{ data.monthly|get_item:month|format_money }}</td>
-                                {% endfor %}
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            {% for month_data in monthly_totals.values %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 font-medium text-gray-700">{{ month_data.name }}</td>
+                                <td class="px-4 py-3 text-green-600 font-semibold">${{ month_data.incomes|format_money }}</td>
+                                <td class="px-4 py-3 text-danger font-semibold">${{ month_data.expenses|format_money }}</td>
+                                <td class="px-4 py-3 font-semibold {% if month_data.incomes > month_data.expenses %}text-green-600{% else %}text-danger{% endif %}">
+                                    ${{ month_data.incomes|subtract:month_data.expenses|format_money }}
+                                </td>
                             </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-gray-500">No hay información mensual registrada.</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-gray-500">No se registraron gastos por categoría en el periodo.</p>
-        {% endif %}
-    </section>
 
-    <!-- Income detail -->
-    <section class="bg-white rounded-2xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-primary-dark">Detalle de ingresos y gastos asociados</h2>
-        </div>
-        {% if incomes %}
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-100 text-gray-600">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold">Mes</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold">Monto</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold">Gastos por categoría</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold">Total gastado</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100 text-sm">
-                    {% for income in incomes %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 font-medium text-gray-700">{{ income.month }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ income.description }}</td>
-                        <td class="px-4 py-3 font-semibold text-green-600">${{ income.amount|format_money }}</td>
-                        <td class="px-4 py-3">
-                            {% if income.expenses %}
-                            <ul class="space-y-1">
-                                {% for category, amount in income.expenses.items %}
-                                <li class="flex justify-between text-gray-600">
-                                    <span>{{ category.name }}</span>
-                                    <span class="font-semibold text-danger">${{ amount|format_money }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                            {% else %}
-                            <span class="text-gray-400">Sin gastos asociados</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-4 py-3 font-semibold text-danger">${{ income.total_expenses|format_money }}</td>
-                    </tr>
+            <div class="report-tab-content hidden p-6" data-report-content="expenses-by-category">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-primary-dark">Gastos por categoría</h2>
+                </div>
+                {% if expenses_by_category %}
+                <div class="space-y-6">
+                    {% for category, data in expenses_by_category.items %}
+                    <div class="border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                                <i class="fas fa-tag text-primary mr-2"></i>{{ category.name }}
+                            </h3>
+                            <span class="text-sm font-semibold text-danger">Total: ${{ data.total|format_money }}</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="text-xs uppercase tracking-wide text-gray-500">
+                                        {% for month, name in months_names.items %}
+                                        <th class="px-3 py-2 text-left">{{ name }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="text-sm text-gray-600">
+                                        {% for month, name in months_names.items %}
+                                        <td class="px-3 py-2">${{ data.monthly|get_item:month|format_money }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500">No se registraron gastos por categoría en el periodo.</p>
+                {% endif %}
+            </div>
+
+            <div class="report-tab-content hidden p-6" data-report-content="income-detail">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-primary-dark">Detalle de ingresos y gastos asociados</h2>
+                </div>
+                {% if incomes %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100 text-gray-600">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-semibold">Mes</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold">Monto</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold">Gastos por categoría</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold">Total gastado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100 text-sm">
+                            {% for income in incomes %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 font-medium text-gray-700">{{ income.month }}</td>
+                                <td class="px-4 py-3 text-gray-600">{{ income.description }}</td>
+                                <td class="px-4 py-3 font-semibold text-green-600">${{ income.amount|format_money }}</td>
+                                <td class="px-4 py-3">
+                                    {% if income.expenses %}
+                                    <ul class="space-y-1">
+                                        {% for category, amount in income.expenses.items %}
+                                        <li class="flex justify-between text-gray-600">
+                                            <span>{{ category.name }}</span>
+                                            <span class="font-semibold text-danger">${{ amount|format_money }}</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <span class="text-gray-400">Sin gastos asociados</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 font-semibold text-danger">${{ income.total_expenses|format_money }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500">No se registraron ingresos durante el periodo.</p>
+                {% endif %}
+            </div>
         </div>
-        {% else %}
-        <p class="text-gray-500">No se registraron ingresos durante el periodo.</p>
-        {% endif %}
     </section>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.report-tab');
+        const contents = document.querySelectorAll('.report-tab-content');
+        const activeClasses = ['text-primary', 'border-primary', 'bg-primary/5', 'font-semibold'];
+        const inactiveClasses = ['text-gray-600', 'border-transparent'];
+
+        function activateTab(targetId) {
+            contents.forEach((content) => {
+                if (content.dataset.reportContent === targetId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+
+            tabs.forEach((tab) => {
+                if (tab.dataset.reportTab === targetId) {
+                    tab.classList.add(...activeClasses);
+                    tab.classList.remove(...inactiveClasses);
+                } else {
+                    tab.classList.remove(...activeClasses);
+                    tab.classList.add(...inactiveClasses);
+                }
+            });
+        }
+
+        const defaultTab = document.querySelector('.report-tab');
+        if (defaultTab) {
+            activateTab(defaultTab.dataset.reportTab);
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                activateTab(tab.dataset.reportTab);
+            });
+        });
+    });
+</script>
 {% endblock %}
