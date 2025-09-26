@@ -11,8 +11,8 @@ def dashboard_view(request):
             'url': 'finances:flow-list',
             'color': 'bg-primary',
             'stats': [
-                {'label': 'Flujos Anuales', 'value': '2024'},
-                {'label': 'Balance', 'value': 'Positivo'},
+                {'label': 'Flujos Anuales', 'value': ''},
+                {'label': 'Finanzas', 'value': ''},
             ]
         },
         # Aquí se pueden agregar más apps en el futuro
