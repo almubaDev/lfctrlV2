@@ -71,6 +71,18 @@
                 <div>
                     <p class="text-gray-500 text-sm">Remanente Total</p>
                     <p class="text-2xl font-bold text-primary-dark">${{ flow.get_accumulated_remnant|format_money }}</p>
+                    <div class="mt-4 space-y-2">
+                        <a href="{% url 'finances:flow-remnants' flow.pk %}"
+                           class="bg-info hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center justify-center text-sm">
+                            <i class="fas fa-list-ul mr-2"></i>Ver remanentes
+                        </a>
+                        {% if flow.get_accumulated_remnant > 0 %}
+                        <a href="{% url 'finances:withdraw-remnant' flow.pk %}"
+                           class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition flex items-center justify-center text-sm">
+                            <i class="fas fa-money-bill-transfer mr-2"></i>Retirar remanente
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
                 <i class="fas fa-coins text-3xl text-warning"></i>
             </div>
