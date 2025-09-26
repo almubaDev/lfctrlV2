@@ -7,6 +7,8 @@ from django.utils import timezone
 
 from finances.models import AnnualFlow, MonthlyIncomeBook, Remnant
 
+from .views import format_currency
+
 
 class DashboardViewTests(TestCase):
     def setUp(self):
@@ -41,6 +43,5 @@ class DashboardViewTests(TestCase):
             {'label': 'Flujos Anual', 'value': str(flow_year)}
         )
         remnant_value = finance_app['stats'][1]['value']
-        self.assertTrue(remnant_value.startswith('$'))
-        self.assertIn('150.50', remnant_value)
+        self.assertEqual(remnant_value, format_currency(Decimal('150.50')))
         self.assertEqual(finance_app['stats'][1]['label'], 'Remanentes')
