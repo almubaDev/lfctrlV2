@@ -12,6 +12,7 @@ def format_money(value):
             use_l10n=True,
             force_grouping=True,
         )
+
         return formatted.replace(",", ".")
     except (ValueError, TypeError):
         return "0"
