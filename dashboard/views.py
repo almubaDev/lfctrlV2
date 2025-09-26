@@ -16,7 +16,11 @@ def format_currency(amount):
             use_l10n=True,
             force_grouping=True,
         )
-        return f"${formatted.replace(',', '.')}"
+
+        for separator in (",", "\xa0", " "):
+            formatted = formatted.replace(separator, ".")
+        return f"${formatted}"
+
     except (TypeError, ValueError, InvalidOperation):
         return "$0"
 

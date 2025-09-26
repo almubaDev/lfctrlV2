@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -45,3 +47,8 @@ class DashboardViewTests(TestCase):
         remnant_value = finance_app['stats'][1]['value']
         self.assertEqual(remnant_value, format_currency(Decimal('150.50')))
         self.assertEqual(finance_app['stats'][1]['label'], 'Remanentes')
+
+    def test_format_currency_replaces_spaces_with_dots(self):
+        with patch("dashboard.views.number_format", return_value="50 000") as mocked:
+            self.assertEqual(format_currency(Decimal("50000")), "$50.000")
+            mocked.assert_called_once()
