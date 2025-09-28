@@ -14,93 +14,130 @@
         </a>
     </div>
 
-    <div class="bg-white shadow rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-primary-dark mb-4">Subir nueva foto</h2>
-        <form method="post" enctype="multipart/form-data" class="space-y-4">
-            {% csrf_token %}
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    {{ form.photo.label_tag }}
-                    {{ form.photo }}
-                    {% if form.photo.help_text %}
-                    <p class="text-xs text-gray-500 mt-1">{{ form.photo.help_text }}</p>
-                    {% endif %}
-                </div>
-                <div>
-                    {{ form.photo_type.label_tag }}
-                    {{ form.photo_type }}
-                    {% if form.photo_type.help_text %}
-                    <p class="text-xs text-gray-500 mt-1">{{ form.photo_type.help_text }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            <div>
-                {{ form.notes.label_tag }}
-                {{ form.notes }}
-            </div>
-            <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center px-5 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
-                    <i class="fas fa-upload mr-2"></i> Guardar Foto
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <div class="bg-white shadow rounded-xl p-6">
-        <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
-            <div>
-                <h2 class="text-xl font-semibold text-primary-dark">Calendario de Fotos</h2>
-                <p class="text-gray-500">Selecciona un día marcado para ver las fotos disponibles.</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <a href="{% url 'tracking:photos' %}?year={{ prev_month.year }}&month={{ prev_month.month }}" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                <span class="font-semibold text-primary-dark">{{ current_month|date:"F Y" }}</span>
-                <a href="{% url 'tracking:photos' %}?year={{ next_month.year }}&month={{ next_month.month }}" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div class="space-y-6">
+            <div class="bg-white shadow rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-primary-dark mb-4">Subir nueva foto</h2>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            {{ form.photo.label_tag }}
+                            {{ form.photo }}
+                            {% if form.photo.help_text %}
+                            <p class="text-xs text-gray-500 mt-1">{{ form.photo.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.photo_type.label_tag }}
+                            {{ form.photo_type }}
+                            {% if form.photo_type.help_text %}
+                            <p class="text-xs text-gray-500 mt-1">{{ form.photo_type.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        {{ form.notes.label_tag }}
+                        {{ form.notes }}
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-5 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition">
+                            <i class="fas fa-upload mr-2"></i> Guardar Foto
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <div class="grid grid-cols-7 gap-2 text-center text-sm font-semibold text-gray-500 mb-2">
-            <div>Lun</div>
-            <div>Mar</div>
-            <div>Mié</div>
-            <div>Jue</div>
-            <div>Vie</div>
-            <div>Sáb</div>
-            <div>Dom</div>
-        </div>
-        <div class="space-y-2">
-            {% for week in calendar %}
-            <div class="grid grid-cols-7 gap-2">
-                {% for day in week %}
-                    {% if day.day %}
-                    <button class="day-cell rounded-lg p-3 text-left border {% if day.has_photos %}border-primary text-primary-dark hover:bg-primary-light/60{% else %}border-gray-200 text-gray-400 cursor-default{% endif %}"
-                            data-date="{{ day.date }}"
-                            {% if not day.has_photos %}disabled{% endif %}>
-                        <span class="block text-lg font-semibold">{{ day.day }}</span>
-                        {% if day.has_photos %}
-                        <span class="text-xs">{{ day.photo_count }} foto{{ day.photo_count|pluralize:"s" }}</span>
+        <div class="bg-white shadow rounded-xl p-6 lg:max-w-sm lg:justify-self-end">
+            <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-primary-dark">Calendario de Fotos</h2>
+                    <p class="text-gray-500 text-sm">Selecciona un día marcado para ver las fotos disponibles.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'tracking:photos' %}?year={{ prev_month.year }}&month={{ prev_month.month }}" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <span class="font-semibold text-primary-dark text-sm">{{ current_month|date:"F Y" }}</span>
+                    <a href="{% url 'tracking:photos' %}?year={{ next_month.year }}&month={{ next_month.month }}" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-gray-500 mb-3">
+                <div>Lun</div>
+                <div>Mar</div>
+                <div>Mié</div>
+                <div>Jue</div>
+                <div>Vie</div>
+                <div>Sáb</div>
+                <div>Dom</div>
+            </div>
+            <div class="space-y-1.5">
+                {% for week in calendar %}
+                <div class="grid grid-cols-7 gap-2">
+                    {% for day in week %}
+                        {% if day.day %}
+                        <button class="day-cell rounded-xl px-2 py-2 text-left border transition-all duration-150 {% if day.has_photos %}border-primary bg-primary-light/40 text-primary-dark hover:bg-primary-light/70{% else %}border-gray-200 text-gray-400 cursor-default{% endif %}"
+                                data-date="{{ day.date|date:'Y-m-d' }}"
+                                data-count="{{ day.photo_count|default:0 }}"
+                                {% if not day.has_photos %}disabled{% endif %}>
+                            <span class="block text-sm font-semibold">{{ day.day }}</span>
+                            {% if day.has_photos %}
+                            <span class="text-[10px] font-medium">{{ day.photo_count }} foto{{ day.photo_count|pluralize:"s" }}</span>
+                            {% endif %}
+                        </button>
+                        {% else %}
+                        <div></div>
                         {% endif %}
-                    </button>
-                    {% else %}
-                    <div></div>
-                    {% endif %}
+                    {% endfor %}
+                </div>
                 {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 
-    <div class="bg-white shadow rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-primary-dark">Fotos del día seleccionado</h2>
-            <p id="selected-date" class="text-gray-500"></p>
+    <div id="photo-modal" class="hidden">
+        <div id="photo-modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+            <div class="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <button id="modal-close" type="button" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    <span class="sr-only">Cerrar</span>
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <div class="p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="space-y-1">
+                            <p id="modal-photo-counter" class="text-sm font-semibold text-primary-dark uppercase tracking-wide"></p>
+                            <p id="modal-photo-date" class="text-gray-600 text-sm"></p>
+                            <p id="modal-photo-type" class="text-gray-700 font-medium"></p>
+                        </div>
+                        <button id="modal-delete-button" type="button" class="inline-flex items-center px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg shadow hover:bg-red-600 transition">
+                            <i class="fas fa-trash-alt mr-2"></i> Eliminar foto
+                        </button>
+                    </div>
+
+                    <div class="relative flex items-center justify-center">
+                        <button id="modal-prev" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary-dark rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <img id="modal-photo" src="" alt="Foto de progreso" class="w-full h-96 object-contain rounded-xl shadow-inner bg-gray-100 hidden">
+                        <div id="modal-empty-state" class="flex items-center justify-center h-96 text-center text-gray-500 bg-gray-100 rounded-xl">
+                            <p class="max-w-xs">No hay fotos para esta fecha. Selecciona otro día con registros disponibles.</p>
+                        </div>
+                        <button id="modal-next" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary-dark rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-primary-light/30 rounded-xl p-4">
+                        <h3 class="text-sm font-semibold text-primary-dark uppercase tracking-wide mb-1">Notas</h3>
+                        <p id="modal-photo-notes" class="text-gray-700 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="photos-container" class="grid md:grid-cols-3 gap-4"></div>
-        <p id="no-photos-message" class="text-gray-500 text-center py-8 hidden">Selecciona un día con fotos en el calendario.</p>
     </div>
 </div>
 {% endblock %}
@@ -108,9 +145,36 @@
 {% block extra_js %}
 {{ block.super }}
 <script>
-    const photosContainer = document.getElementById('photos-container');
-    const selectedDateLabel = document.getElementById('selected-date');
-    const noPhotosMessage = document.getElementById('no-photos-message');
+    const photoModal = document.getElementById('photo-modal');
+    const photoModalOverlay = document.getElementById('photo-modal-overlay');
+    const modalImage = document.getElementById('modal-photo');
+    const modalType = document.getElementById('modal-photo-type');
+    const modalNotes = document.getElementById('modal-photo-notes');
+    const modalDate = document.getElementById('modal-photo-date');
+    const modalCounter = document.getElementById('modal-photo-counter');
+    const modalEmptyState = document.getElementById('modal-empty-state');
+    const deleteButton = document.getElementById('modal-delete-button');
+    const prevButton = document.getElementById('modal-prev');
+    const nextButton = document.getElementById('modal-next');
+
+    let currentPhotos = [];
+    let currentIndex = 0;
+    let selectedDate = null;
+
+    function formatDateDisplay(dateString) {
+        if (!dateString) {
+            return '';
+        }
+        const parsedDate = new Date(`${dateString}T00:00:00`);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return '';
+        }
+        return parsedDate.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -118,42 +182,57 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    function clearPhotos() {
-        photosContainer.innerHTML = '';
+    function openModal() {
+        photoModal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
     }
 
-    function renderPhotos(photos) {
-        clearPhotos();
-        if (!photos.length) {
-            noPhotosMessage.classList.remove('hidden');
+    function closeModal() {
+        photoModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    function updateModalContent() {
+        const hasPhotos = currentPhotos.length > 0;
+        modalEmptyState.classList.toggle('hidden', hasPhotos);
+        modalImage.classList.toggle('hidden', !hasPhotos);
+        deleteButton.classList.toggle('hidden', !hasPhotos);
+        prevButton.disabled = currentPhotos.length <= 1;
+        nextButton.disabled = currentPhotos.length <= 1;
+
+        if (!hasPhotos) {
+            [prevButton, nextButton].forEach(button => {
+                button.classList.toggle('opacity-40', button.disabled);
+                button.classList.toggle('cursor-not-allowed', button.disabled);
+            });
+            modalCounter.textContent = '';
+            modalType.textContent = '';
+            modalDate.textContent = formatDateDisplay(selectedDate);
+            modalNotes.textContent = '';
+            deleteButton.dataset.id = '';
             return;
         }
-        noPhotosMessage.classList.add('hidden');
-        photos.forEach(photo => {
-            const card = document.createElement('div');
-            card.className = 'border border-gray-200 rounded-xl overflow-hidden shadow-sm';
-            card.innerHTML = `
-                <div class="relative h-56 bg-gray-100">
-                    <img src="${photo.url}" alt="Foto de progreso" class="w-full h-full object-cover">
-                    <button type="button" class="delete-photo px-3 py-1 rounded-full bg-red-500 text-white text-xs shadow absolute top-2 right-2" data-id="${photo.id}">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-                <div class="p-4 space-y-2">
-                    <div class="flex justify-between text-sm text-gray-600">
-                        <span><i class="fas fa-camera mr-1"></i>${photo.type}</span>
-                        <span><i class="fas fa-calendar mr-1"></i>${photo.date}</span>
-                    </div>
-                    <p class="text-sm text-gray-700">${photo.notes || 'Sin notas adicionales.'}</p>
-                </div>
-            `;
-            photosContainer.appendChild(card);
+
+        if (currentIndex >= currentPhotos.length) {
+            currentIndex = Math.max(0, currentPhotos.length - 1);
+        }
+
+        const photo = currentPhotos[currentIndex];
+        modalImage.src = photo.url;
+        modalImage.alt = `Foto de progreso ${currentIndex + 1}`;
+        modalType.innerHTML = `<i class="fas fa-camera mr-2"></i>${photo.type}`;
+        modalDate.innerHTML = `<i class="fas fa-calendar mr-2"></i>${formatDateDisplay(photo.date)}`;
+        modalNotes.textContent = photo.notes || 'Sin notas adicionales.';
+        modalCounter.textContent = `Foto ${currentIndex + 1} de ${currentPhotos.length}`;
+        deleteButton.dataset.id = photo.id;
+        [prevButton, nextButton].forEach(button => {
+            button.classList.toggle('opacity-40', button.disabled);
+            button.classList.toggle('cursor-not-allowed', button.disabled);
         });
-        attachDeleteHandlers();
     }
 
     function fetchPhotos(date) {
-        selectedDateLabel.textContent = new Date(date).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+        selectedDate = date;
         fetch(`{% url 'tracking:get_photos_for_date' %}?date=${date}`)
             .then(response => response.json())
             .then(data => {
@@ -162,39 +241,62 @@
                         ...photo,
                         delete_url: `{% url 'tracking:photo_delete' 0 %}`.replace('0', photo.id)
                     }));
-                    renderPhotos(photosWithDeleteUrl);
+                    currentPhotos = photosWithDeleteUrl;
+                    currentIndex = 0;
+                    updateModalContent();
+                    openModal();
                 } else {
-                    renderPhotos([]);
+                    currentPhotos = [];
+                    currentIndex = 0;
+                    updateModalContent();
+                    openModal();
                 }
             })
             .catch(() => {
-                renderPhotos([]);
+                currentPhotos = [];
+                currentIndex = 0;
+                updateModalContent();
+                openModal();
             });
     }
 
-    function attachDeleteHandlers() {
-        document.querySelectorAll('.delete-photo').forEach(button => {
-            button.addEventListener('click', () => {
-                const photoId = button.dataset.id;
-                if (!confirm('¿Eliminar esta foto?')) {
-                    return;
-                }
-                fetch(`{% url 'tracking:photo_delete' 0 %}`.replace('0', photoId), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        button.closest('.border').remove();
-                        if (!photosContainer.children.length) {
-                            noPhotosMessage.classList.remove('hidden');
+    function handleDelete() {
+        const photoId = deleteButton.dataset.id;
+        if (!photoId) {
+            return;
+        }
+        if (!confirm('¿Eliminar esta foto?')) {
+            return;
+        }
+        fetch(`{% url 'tracking:photo_delete' 0 %}`.replace('0', photoId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                currentPhotos = currentPhotos.filter(photo => photo.id !== parseInt(photoId, 10));
+                const activeDayButton = document.querySelector(`.day-cell[data-date="${selectedDate}"]`);
+                if (activeDayButton) {
+                    const newCount = Math.max(0, parseInt(activeDayButton.dataset.count || '0', 10) - 1);
+                    activeDayButton.dataset.count = newCount;
+                    if (newCount === 0) {
+                        activeDayButton.disabled = true;
+                        activeDayButton.classList.remove('border-primary', 'bg-primary-light/40', 'hover:bg-primary-light/70', 'text-primary-dark');
+                        activeDayButton.classList.add('border-gray-200', 'text-gray-400', 'cursor-default');
+                        activeDayButton.classList.remove('ring-2', 'ring-primary');
+                        activeDayButton.querySelector('span:last-child')?.remove();
+                    } else {
+                        const counterLabel = activeDayButton.querySelector('span:last-child');
+                        if (counterLabel) {
+                            counterLabel.textContent = `${newCount} foto${newCount === 1 ? '' : 's'}`;
                         }
                     }
-                });
-            });
+                }
+                updateModalContent();
+            }
         });
     }
 
@@ -208,8 +310,22 @@
         });
     });
 
-    if (!photosContainer.children.length) {
-        noPhotosMessage.classList.remove('hidden');
-    }
+    deleteButton.addEventListener('click', handleDelete);
+    prevButton.addEventListener('click', () => {
+        if (currentPhotos.length <= 1) return;
+        currentIndex = (currentIndex - 1 + currentPhotos.length) % currentPhotos.length;
+        updateModalContent();
+    });
+    nextButton.addEventListener('click', () => {
+        if (currentPhotos.length <= 1) return;
+        currentIndex = (currentIndex + 1) % currentPhotos.length;
+        updateModalContent();
+    });
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    photoModalOverlay.addEventListener('click', (event) => {
+        if (event.target === photoModalOverlay) {
+            closeModal();
+        }
+    });
 </script>
 {% endblock %}
