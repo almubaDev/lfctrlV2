@@ -81,7 +81,9 @@
                     {% for day in week %}
                         {% if day.day %}
                         <button class="day-cell rounded-xl px-2 py-2 text-left border transition-all duration-150 {% if day.has_photos %}border-primary bg-primary-light/40 text-primary-dark hover:bg-primary-light/70{% else %}border-gray-200 text-gray-400 cursor-default{% endif %}"
-                                data-date="{{ day.date }}"
+
+                                data-date="{{ day.date|date:'Y-m-d' }}"
+
                                 data-count="{{ day.photo_count|default:0 }}"
                                 {% if not day.has_photos %}disabled{% endif %}>
                             <span class="block text-sm font-semibold">{{ day.day }}</span>
@@ -161,6 +163,23 @@
     let currentIndex = 0;
     let selectedDate = null;
 
+
+    function formatDateDisplay(dateString) {
+        if (!dateString) {
+            return '';
+        }
+        const parsedDate = new Date(`${dateString}T00:00:00`);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return '';
+        }
+        return parsedDate.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -170,12 +189,14 @@
     function openModal() {
         photoModal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
+
     }
 
     function closeModal() {
         photoModal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
     }
+
 
     function updateModalContent() {
         const hasPhotos = currentPhotos.length > 0;
@@ -192,7 +213,9 @@
             });
             modalCounter.textContent = '';
             modalType.textContent = '';
-            modalDate.textContent = selectedDate ? new Date(selectedDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
+            modalDate.textContent = formatDateDisplay(selectedDate);
+
             modalNotes.textContent = '';
             deleteButton.dataset.id = '';
             return;
@@ -206,7 +229,9 @@
         modalImage.src = photo.url;
         modalImage.alt = `Foto de progreso ${currentIndex + 1}`;
         modalType.innerHTML = `<i class="fas fa-camera mr-2"></i>${photo.type}`;
-        modalDate.innerHTML = `<i class="fas fa-calendar mr-2"></i>${photo.date}`;
+      
+        modalDate.innerHTML = `<i class="fas fa-calendar mr-2"></i>${formatDateDisplay(photo.date)}`;
+
         modalNotes.textContent = photo.notes || 'Sin notas adicionales.';
         modalCounter.textContent = `Foto ${currentIndex + 1} de ${currentPhotos.length}`;
         deleteButton.dataset.id = photo.id;
