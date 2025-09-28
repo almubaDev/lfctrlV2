@@ -82,7 +82,7 @@
                         {% if day.day %}
                         <button class="day-cell rounded-xl px-2 py-2 text-left border transition-all duration-150 {% if day.has_photos %}border-primary bg-primary-light/40 text-primary-dark hover:bg-primary-light/70{% else %}border-gray-200 text-gray-400 cursor-default{% endif %}"
                                 data-date="{{ day.date|date:'Y-m-d' }}"
-                                data-count="{{ day.photo_count|default:0 }}"
+               data-count="{{ day.photo_count|default:0 }}"
                                 {% if not day.has_photos %}disabled{% endif %}>
                             <span class="block text-sm font-semibold">{{ day.day }}</span>
                             {% if day.has_photos %}
@@ -118,11 +118,13 @@
                         </button>
                     </div>
 
+
                     <div class="relative flex items-center justify-center">
                         <button id="modal-prev" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary-dark rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <img id="modal-photo" src="" alt="Foto de progreso" class="w-full h-96 object-contain rounded-xl shadow-inner bg-gray-100 hidden">
+
                         <div id="modal-empty-state" class="flex items-center justify-center h-96 text-center text-gray-500 bg-gray-100 rounded-xl">
                             <p class="max-w-xs">No hay fotos para esta fecha. Selecciona otro día con registros disponibles.</p>
                         </div>
@@ -161,6 +163,7 @@
     let currentIndex = 0;
     let selectedDate = null;
 
+
     function formatDateDisplay(dateString) {
         if (!dateString) {
             return '';
@@ -185,12 +188,14 @@
     function openModal() {
         photoModal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
+
     }
 
     function closeModal() {
         photoModal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
     }
+
 
     function updateModalContent() {
         const hasPhotos = currentPhotos.length > 0;
@@ -207,7 +212,9 @@
             });
             modalCounter.textContent = '';
             modalType.textContent = '';
+
             modalDate.textContent = formatDateDisplay(selectedDate);
+
             modalNotes.textContent = '';
             deleteButton.dataset.id = '';
             return;
@@ -221,7 +228,9 @@
         modalImage.src = photo.url;
         modalImage.alt = `Foto de progreso ${currentIndex + 1}`;
         modalType.innerHTML = `<i class="fas fa-camera mr-2"></i>${photo.type}`;
+
         modalDate.innerHTML = `<i class="fas fa-calendar mr-2"></i>${formatDateDisplay(photo.date)}`;
+
         modalNotes.textContent = photo.notes || 'Sin notas adicionales.';
         modalCounter.textContent = `Foto ${currentIndex + 1} de ${currentPhotos.length}`;
         deleteButton.dataset.id = photo.id;
