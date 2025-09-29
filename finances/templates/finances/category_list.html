@@ -39,12 +39,12 @@
                         <p class="text-gray-600 mt-2">{{ category.description }}</p>
                         {% endif %}
                     </div>
-                    <div class="relative group">
-                        <button class="text-gray-400 hover:text-gray-600 transition">
+                    <div class="relative" data-menu-container>
+                        <button type="button" class="text-gray-400 hover:text-gray-600 transition" data-menu-toggle>
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-10">
-                            <a href="{% url 'finances:category-edit' category.pk %}" 
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-10" data-menu>
+                            <a href="{% url 'finances:category-edit' category.pk %}"
                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-edit mr-2"></i>Editar
                             </a>
@@ -82,4 +82,44 @@
         {% endfor %}
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuContainers = document.querySelectorAll('[data-menu-container]');
+
+        function closeAllMenus() {
+            menuContainers.forEach((container) => {
+                const menu = container.querySelector('[data-menu]');
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+            });
+        }
+
+        menuContainers.forEach((container) => {
+            const toggle = container.querySelector('[data-menu-toggle]');
+            const menu = container.querySelector('[data-menu]');
+
+            if (!toggle || !menu) {
+                return;
+            }
+
+            toggle.addEventListener('click', function (event) {
+                event.stopPropagation();
+                const isHidden = menu.classList.contains('hidden');
+                closeAllMenus();
+                if (isHidden) {
+                    menu.classList.remove('hidden');
+                }
+            });
+
+            menu.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        });
+
+        document.addEventListener('click', function () {
+            closeAllMenus();
+        });
+    });
+</script>
 {% endblock %}
