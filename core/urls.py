@@ -14,6 +14,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('finances/', include('finances.urls')),
     path('tracking/', include('tracking.urls')),  # Nueva app
+    path('tasks/', include('tasks.urls')),
 ]
 
 # Servir archivos media en desarrollo
