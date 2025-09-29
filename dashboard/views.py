@@ -68,6 +68,14 @@ def dashboard_view(request):
             next_due_date__lte=today,
         ).count()
 
+
+        tasks_completed_today_count = Task.objects.filter(
+            user=request.user,
+            is_active=True,
+            last_completed=today,
+        ).count()
+
+
     except Exception:
         weight_stats = {'current': None, 'date': None}
         recent_measurements = 0
@@ -77,6 +85,9 @@ def dashboard_view(request):
             {'label': 'Remanentes', 'value': format_currency(0)},
         ]
         tasks_today_count = 0
+
+        tasks_completed_today_count = 0
+
 
     apps = [
         {
@@ -106,6 +117,8 @@ def dashboard_view(request):
             'color': 'bg-info',
             'stats': [
                 {'label': 'Pendientes hoy', 'value': str(tasks_today_count)},
+                {'label': 'Completadas hoy', 'value': str(tasks_completed_today_count)},
+
             ]
         },
     ]
