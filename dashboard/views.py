@@ -74,6 +74,7 @@ def dashboard_view(request):
             last_completed=today,
         ).count()
 
+
     except Exception:
         weight_stats = {'current': None, 'date': None}
         recent_measurements = 0
@@ -83,7 +84,9 @@ def dashboard_view(request):
             {'label': 'Remanentes', 'value': format_currency(0)},
         ]
         tasks_today_count = 0
+
         tasks_completed_today_count = 0
+
 
     apps = [
         {
@@ -114,6 +117,7 @@ def dashboard_view(request):
             'stats': [
                 {'label': 'Pendientes hoy', 'value': str(tasks_today_count)},
                 {'label': 'Completadas hoy', 'value': str(tasks_completed_today_count)},
+
             ]
         },
     ]
