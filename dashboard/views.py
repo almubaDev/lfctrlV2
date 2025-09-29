@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation, ROUND_DOWN
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils.formats import number_format
+from django.utils import timezone
 
 def format_currency(amount):
     try:
@@ -28,9 +29,12 @@ def format_currency(amount):
 @login_required
 def dashboard_view(request):
     # Importar los modelos aquí para evitar problemas de importación circular
+    today = timezone.localdate()
+
     try:
         from tracking.models import WeightRecord, BodyMeasurement, ProgressPhoto
         from finances.models import AnnualFlow
+        from tasks.models import Task
 
         # Obtener estadísticas de tracking
         latest_weight = WeightRecord.objects.filter(user=request.user).order_by('-date').first()
@@ -58,6 +62,12 @@ def dashboard_view(request):
             {'label': 'Remanentes', 'value': format_currency(accumulated_remnants)},
         ]
 
+        tasks_today_count = Task.objects.filter(
+            user=request.user,
+            is_active=True,
+            next_due_date__lte=today,
+        ).count()
+
     except Exception:
         weight_stats = {'current': None, 'date': None}
         recent_measurements = 0
@@ -66,6 +76,7 @@ def dashboard_view(request):
             {'label': 'Flujos Anual', 'value': str(datetime.now().year)},
             {'label': 'Remanentes', 'value': format_currency(0)},
         ]
+        tasks_today_count = 0
 
     apps = [
         {
@@ -85,6 +96,16 @@ def dashboard_view(request):
             'stats': [
                 {'label': 'Peso Actual', 'value': f"{weight_stats['current']:.1f} kg" if weight_stats['current'] else 'Sin datos'},
                 {'label': 'Registros (30d)', 'value': f"{recent_measurements + recent_photos}"},
+            ]
+        },
+        {
+            'name': 'Gestor de Tareas',
+            'description': 'Organiza y completa tus tareas periódicas',
+            'icon': 'fas fa-list-check',
+            'url': 'tasks:today',
+            'color': 'bg-info',
+            'stats': [
+                {'label': 'Pendientes hoy', 'value': str(tasks_today_count)},
             ]
         },
     ]
