@@ -68,7 +68,6 @@ def dashboard_view(request):
             next_due_date__lte=today,
         ).count()
 
-
         tasks_completed_today_count = Task.objects.filter(
             user=request.user,
             is_active=True,
