@@ -34,7 +34,7 @@
             </div>
         </form>
 
-        {% if all_tags %}
+        {% comment %} {% if all_tags %}
         <div class="mt-6">
             <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Etiquetas populares</h2>
             <div class="mt-3 flex flex-wrap gap-2">
@@ -47,7 +47,7 @@
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 
     {% if commands %}
