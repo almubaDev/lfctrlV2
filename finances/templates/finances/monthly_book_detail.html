@@ -122,11 +122,11 @@
                         <td class="px-6 py-4 text-sm text-gray-900">
                             {{ income.description }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-normal text-gray-600">
                             ${{ income.amount|format_money }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <span class="{% if income.current_balance > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
+                            <span class=" {% if income.current_balance > 0 %}text-green-600{% else %}text-red-600{% endif %}">
                                 ${{ income.current_balance|format_money }}
                             </span>
                         </td>
