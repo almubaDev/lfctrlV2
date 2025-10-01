@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo Comando Linux{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-dark">Registrar comando</h1>
+            <p class="text-gray-600">Describe tu comando, agrega banderas y organiza con etiquetas.</p>
+        </div>
+        <a href="{% url 'linux_commands:list' %}" class="text-primary hover:text-primary-dark transition flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+
+    <form method="post" class="bg-white shadow rounded-lg p-6 space-y-8">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.description.id_for_label }}">Descripción</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.description.errors|striptags }}</p>
+                {% endif %}
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.command.id_for_label }}">Comando</label>
+                {{ form.command }}
+                {% if form.command.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.command.errors|striptags }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label for="tag-input" class="block text-sm font-medium text-gray-700">Etiquetas</label>
+            <div class="mt-1 flex flex-wrap gap-2 items-center border border-gray-300 rounded-md p-3" id="tag-container">
+                <input type="text" id="tag-input" class="flex-1 min-w-[160px] border-0 focus:ring-0 focus:outline-none" placeholder="Escribe una etiqueta y presiona Enter" list="tag-suggestions">
+            </div>
+            <input type="hidden" name="tags" id="hidden-tags" value="{{ initial_tags }}">
+            <datalist id="tag-suggestions"></datalist>
+            <p class="text-sm text-gray-500 mt-2">Separa las etiquetas con Enter o coma. Se guardarán en minúsculas.</p>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xl font-semibold text-primary-dark">Banderas</h2>
+                <button type="button" id="add-flag" class="flex items-center gap-2 bg-primary text-white px-3 py-2 rounded-lg hover:bg-primary-dark transition">
+                    <i class="fas fa-plus"></i> Agregar bandera
+                </button>
+            </div>
+
+            {{ formset.management_form }}
+            <div id="flags-container" class="space-y-4">
+                {% for form in formset.forms %}
+                <div class="border border-gray-200 rounded-lg p-4 space-y-3" data-flag-form>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700" for="{{ form.flag.id_for_label }}">Bandera</label>
+                            {{ form.flag }}
+                            {% if form.flag.errors %}
+                            <p class="text-sm text-red-600 mt-1">{{ form.flag.errors|striptags }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700" for="{{ form.explanation.id_for_label }}">Descripción</label>
+                            {{ form.explanation }}
+                            {% if form.explanation.errors %}
+                            <p class="text-sm text-red-600 mt-1">{{ form.explanation.errors|striptags }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button type="button" class="text-danger hover:underline flex items-center gap-2" data-remove-flag>
+                        <i class="fas fa-trash"></i> Quitar bandera
+                    </button>
+                    {% if form.id %}<div class="hidden" data-existing-id>{{ form.id }}</div>{% endif %}
+                    {% if form.DELETE %}<div class="hidden" data-existing-delete>{{ form.DELETE }}</div>{% endif %}
+                </div>
+                {% empty %}
+                {% endfor %}
+            </div>
+
+            <template id="flag-form-template">
+                <div class="border border-gray-200 rounded-lg p-4 space-y-3" data-flag-form>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Bandera</label>
+                            <div data-placeholder="flag"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                            <div data-placeholder="explanation"></div>
+                        </div>
+                    </div>
+                    <button type="button" class="text-danger hover:underline flex items-center gap-2" data-remove-flag>
+                        <i class="fas fa-trash"></i> Quitar bandera
+                    </button>
+                    <div data-placeholder="hidden"></div>
+                </div>
+            </template>
+
+            <div id="empty-form" class="hidden">
+                <div data-field="flag">{{ formset.empty_form.flag }}</div>
+                <div data-field="explanation">{{ formset.empty_form.explanation }}</div>
+                <div data-field="id">{{ formset.empty_form.id }}</div>
+                <div data-field="delete">{{ formset.empty_form.DELETE }}</div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'linux_commands:list' %}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">Cancelar</a>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition">Guardar comando</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const formsetPrefix = '{{ formset.prefix }}';
+    const hiddenTagsInput = document.getElementById('hidden-tags');
+    const tagInput = document.getElementById('tag-input');
+    const tagContainer = document.getElementById('tag-container');
+    const tagList = new Set();
+
+    function renderTags() {
+        tagContainer.querySelectorAll('.tag-pill').forEach(pill => pill.remove());
+        tagList.forEach(tag => {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill inline-flex items-center gap-2 bg-primary-light text-primary-dark px-3 py-1 rounded-full text-sm';
+            pill.innerHTML = `<span>#${tag}</span><button type="button" class="text-primary-dark hover:text-danger" data-tag-remove="${tag}"><i class="fas fa-times"></i></button>`;
+            tagContainer.insertBefore(pill, tagInput);
+        });
+        hiddenTagsInput.value = Array.from(tagList).join(',');
+    }
+
+    function addTag(value) {
+        const tag = value.trim().toLowerCase();
+        if (!tag) return;
+        tagList.add(tag);
+        renderTags();
+    }
+
+    if (hiddenTagsInput.value) {
+        hiddenTagsInput.value.split(',').forEach(tag => addTag(tag));
+    }
+
+    tagInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ',') {
+            event.preventDefault();
+            addTag(tagInput.value);
+            tagInput.value = '';
+        }
+    });
+
+    tagInput.addEventListener('blur', function() {
+        addTag(tagInput.value);
+        tagInput.value = '';
+    });
+
+    tagContainer.addEventListener('click', function(event) {
+        const button = event.target.closest('[data-tag-remove]');
+        if (!button) return;
+        const tag = button.getAttribute('data-tag-remove');
+        tagList.delete(tag);
+        renderTags();
+    });
+
+    fetch('{% url "linux_commands:tag_suggestions" %}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const datalist = document.getElementById('tag-suggestions');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        (data.tags || []).forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag;
+            datalist.appendChild(option);
+        });
+    })
+    .catch(() => {});
+
+    const flagsContainer = document.getElementById('flags-container');
+    const addFlagButton = document.getElementById('add-flag');
+    const totalForms = document.querySelector(`#id_${formsetPrefix}-TOTAL_FORMS`);
+    const emptyFormContainer = document.getElementById('empty-form');
+
+    function createField(fieldName, index) {
+        const fieldHolder = emptyFormContainer.querySelector(`[data-field="${fieldName}"]`);
+        if (!fieldHolder) return null;
+        const html = fieldHolder.innerHTML.replace(/__prefix__/g, index);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        return wrapper.firstChild;
+    }
+
+    function createFlagForm(index) {
+        const template = document.getElementById('flag-form-template').content.cloneNode(true);
+        const container = template.querySelector('[data-flag-form]');
+        container.dataset.index = index;
+
+        const flagField = createField('flag', index);
+        const explanationField = createField('explanation', index);
+        const idField = createField('id', index);
+        const deleteField = createField('delete', index);
+
+        const flagPlaceholder = container.querySelector('[data-placeholder="flag"]');
+        const explanationPlaceholder = container.querySelector('[data-placeholder="explanation"]');
+        const hiddenPlaceholder = container.querySelector('[data-placeholder="hidden"]');
+
+        if (flagField) flagPlaceholder.appendChild(flagField);
+        if (explanationField) explanationPlaceholder.appendChild(explanationField);
+        if (idField) hiddenPlaceholder.appendChild(idField);
+        if (deleteField) {
+            if (deleteField.type === 'checkbox') {
+                deleteField.classList.add('hidden');
+            }
+            hiddenPlaceholder.appendChild(deleteField);
+        }
+
+        return template;
+    }
+
+    function refreshFormIndices() {
+        const forms = Array.from(flagsContainer.querySelectorAll('[data-flag-form]'));
+        const prefixPattern = new RegExp(`${formsetPrefix}-\\d+-`);
+        forms.forEach((formEl, index) => {
+            formEl.dataset.index = index;
+            formEl.querySelectorAll('input, textarea').forEach(input => {
+                if (input.name && input.name.includes(`${formsetPrefix}-`)) {
+                    input.name = input.name.replace(prefixPattern, `${formsetPrefix}-${index}-`);
+                }
+                if (input.id && input.id.includes(`${formsetPrefix}-`)) {
+                    input.id = input.id.replace(prefixPattern, `${formsetPrefix}-${index}-`);
+                }
+            });
+        });
+        totalForms.value = forms.length;
+    }
+
+    addFlagButton.addEventListener('click', () => {
+        const index = parseInt(totalForms.value, 10);
+        const fragment = createFlagForm(index);
+        flagsContainer.appendChild(fragment);
+        refreshFormIndices();
+    });
+
+    flagsContainer.addEventListener('click', event => {
+        const button = event.target.closest('[data-remove-flag]');
+        if (!button) return;
+        const flagForm = button.closest('[data-flag-form]');
+        if (!flagForm) return;
+
+        const deleteInput = flagForm.querySelector('input[name$="-DELETE"]');
+        const idInput = flagForm.querySelector('input[name$="-id"]');
+
+        if (idInput && idInput.value) {
+            if (deleteInput) {
+                deleteInput.checked = true;
+            }
+            flagForm.classList.add('hidden');
+        } else {
+            flagForm.remove();
+            refreshFormIndices();
+        }
+    });
+
+    refreshFormIndices();
+
+    if (parseInt(totalForms.value, 10) === 0) {
+        addFlagButton.click();
+    }
+})();
+</script>
+{% endblock %}

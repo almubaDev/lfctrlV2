@@ -15,6 +15,7 @@ urlpatterns = [
     path('finances/', include('finances.urls')),
     path('tracking/', include('tracking.urls')),  # Nueva app
     path('tasks/', include('tasks.urls')),
+    path('linux-commands/', include('linux_commands.urls')),
 ]
 
 # Servir archivos media en desarrollo
