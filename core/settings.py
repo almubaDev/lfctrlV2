@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'dashboard',
     'tracking',
     'tasks',
+    'linux_commands',
 ]
 
 MIDDLEWARE = [
