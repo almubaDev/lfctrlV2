@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Nuevo Comando Linux{% endblock %}
+{% block title %}{% if is_edit %}Editar{% else %}Nuevo{% endif %} Comando Linux{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-primary-dark">Registrar comando</h1>
+            <h1 class="text-3xl font-bold text-primary-dark">{% if is_edit %}Actualizar comando{% else %}Registrar comando{% endif %}</h1>
             <p class="text-gray-600">Describe tu comando, agrega banderas y organiza con etiquetas.</p>
         </div>
         <a href="{% url 'linux_commands:list' %}" class="text-primary hover:text-primary-dark transition flex items-center gap-2">
@@ -116,7 +116,7 @@
 
         <div class="flex justify-end gap-3">
             <a href="{% url 'linux_commands:list' %}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">Cancelar</a>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition">Guardar comando</button>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition">{% if is_edit %}Actualizar comando{% else %}Guardar comando{% endif %}</button>
         </div>
     </form>
 </div>

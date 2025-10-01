@@ -19,13 +19,19 @@
     <div class="bg-white shadow rounded-lg p-6">
         <form method="get" class="flex flex-col md:flex-row gap-4 md:items-end">
             <div class="flex-1">
+                <label for="id_search" class="block text-sm font-medium text-gray-700">Buscar por descripción</label>
+                <input type="text" id="id_search" name="q" value="{{ search_query }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-primary focus:ring-primary" placeholder="Ej. copiar archivos, monitoreo...">
+            </div>
+            <div class="flex-1">
                 <label for="id_tags" class="block text-sm font-medium text-gray-700">Filtrar por etiquetas (separadas por coma)</label>
                 <input type="text" id="id_tags" name="tags" value="{{ tag_query }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-primary focus:ring-primary" placeholder="ssh, red, seguridad">
             </div>
-            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-primary-dark transition h-10 md:h-auto">
-                <i class="fas fa-filter mr-2"></i>Filtrar
-            </button>
-            <a href="{% url 'linux_commands:list' %}" class="text-primary-dark hover:underline h-10 md:h-auto flex items-center">Limpiar</a>
+            <div class="flex items-center gap-3">
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-primary-dark transition h-10 md:h-auto">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+                <a href="{% url 'linux_commands:list' %}" class="text-primary-dark hover:underline h-10 md:h-auto flex items-center">Limpiar</a>
+            </div>
         </form>
 
         {% if all_tags %}
@@ -48,13 +54,32 @@
     <div class="grid gap-6 md:grid-cols-2">
         {% for command in commands %}
         <div class="bg-white rounded-lg shadow p-6 flex flex-col gap-4">
-            <div class="flex items-center justify-between">
-                <div>
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex-1">
                     <h3 class="text-xl font-semibold text-primary-dark">{{ command.description|default:'(Sin descripción)' }}</h3>
                     <p class="text-sm text-gray-500">Creado por {{ command.owner.email }} • {{ command.created_at|date:'d/m/Y H:i' }}</p>
                 </div>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-clock mr-1"></i>{{ command.updated_at|timesince }} atrás
+                <div class="flex items-start gap-3">
+                    <div class="text-sm text-gray-500 whitespace-nowrap">
+                        <i class="fas fa-clock mr-1"></i>{{ command.updated_at|timesince }} atrás
+                    </div>
+                    <div class="relative" data-command-menu>
+                        <button type="button" class="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition" aria-haspopup="true" aria-expanded="false" data-command-menu-trigger>
+                            <span class="sr-only">Abrir acciones</span>
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="hidden absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu" data-command-menu-items>
+                            <a href="{% url 'linux_commands:update' command.pk %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-edit mr-2"></i>Editar
+                            </a>
+                            <form method="post" action="{% url 'linux_commands:delete' command.pk %}" data-command-delete-form>
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-danger hover:bg-red-50 flex items-center gap-2" role="menuitem" data-confirm="¿Eliminar este comando?">
+                                    <i class="fas fa-trash-alt"></i>Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
             <pre class="bg-gray-900 text-green-200 rounded-md p-4 text-sm overflow-x-auto"><code>{{ command.command }}</code></pre>
@@ -92,4 +117,60 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const menus = document.querySelectorAll('[data-command-menu]');
+
+    function closeAllMenus() {
+        menus.forEach(menu => {
+            const menuItems = menu.querySelector('[data-command-menu-items]');
+            const trigger = menu.querySelector('[data-command-menu-trigger]');
+            if (menuItems && trigger) {
+                menuItems.classList.add('hidden');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    menus.forEach(menu => {
+        const trigger = menu.querySelector('[data-command-menu-trigger]');
+        const menuItems = menu.querySelector('[data-command-menu-items]');
+
+        if (!trigger || !menuItems) {
+            return;
+        }
+
+        trigger.addEventListener('click', event => {
+            event.stopPropagation();
+            const isOpen = !menuItems.classList.contains('hidden');
+            closeAllMenus();
+            if (!isOpen) {
+                menuItems.classList.remove('hidden');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        });
+
+        menuItems.addEventListener('click', event => event.stopPropagation());
+    });
+
+    document.addEventListener('click', () => closeAllMenus());
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeAllMenus();
+        }
+    });
+
+    document.querySelectorAll('[data-command-delete-form]').forEach(form => {
+        form.addEventListener('submit', event => {
+            const confirmMessage = event.target.querySelector('[data-confirm]');
+            if (confirmMessage && !window.confirm(confirmMessage.getAttribute('data-confirm'))) {
+                event.preventDefault();
+            }
+        });
+    });
+})();
+</script>
 {% endblock %}
