@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import CommandTag, LinuxCommand
+from .models import CommandFlag, CommandTag, LinuxCommand
 
 
 class LinuxCommandTests(TestCase):
@@ -14,10 +14,10 @@ class LinuxCommandTests(TestCase):
         self.client = Client()
         self.client.force_login(self.user)
 
-    def _formset_management_data(self, total):
+    def _formset_management_data(self, total, initial=0):
         return {
             'flags-TOTAL_FORMS': str(total),
-            'flags-INITIAL_FORMS': '0',
+            'flags-INITIAL_FORMS': str(initial),
             'flags-MIN_NUM_FORMS': '0',
             'flags-MAX_NUM_FORMS': '1000',
         }
@@ -104,3 +104,90 @@ class LinuxCommandTests(TestCase):
         self.assertEqual(response_multiple.status_code, 200)
         commands_multiple = list(response_multiple.context['commands'])
         self.assertCountEqual(commands_multiple, [command_security, command_system])
+
+    def test_list_orders_commands_by_description(self):
+        cmd_b = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Buscar procesos',
+            command='ps aux',
+        )
+        cmd_a = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Analizar disco',
+            command='du -sh /var/log',
+        )
+        cmd_c = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Copiar archivos',
+            command='rsync -av /src /dst',
+        )
+
+        response = self.client.get(reverse('linux_commands:list'))
+        self.assertEqual(response.status_code, 200)
+
+        commands = list(response.context['commands'])
+        self.assertEqual(commands, [cmd_a, cmd_b, cmd_c])
+
+    def test_search_filters_by_description(self):
+        LinuxCommand.objects.create(
+            owner=self.user,
+            description='Realizar respaldo incremental',
+            command='rsync -a --delete',
+        )
+        command_match = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Respaldo diario de base de datos',
+            command='pg_dumpall > backup.sql',
+        )
+
+        response = self.client.get(reverse('linux_commands:list'), {'q': 'base de datos'})
+        self.assertEqual(response.status_code, 200)
+
+        commands = list(response.context['commands'])
+        self.assertEqual(commands, [command_match])
+
+    def test_update_command(self):
+        command = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Ver espacio disponible',
+            command='df -h',
+        )
+        flag = CommandFlag.objects.create(
+            linux_command=command,
+            flag='-h',
+            explanation='Formato legible',
+        )
+
+        url = reverse('linux_commands:update', args=[command.pk])
+        data = {
+            'description': 'Ver espacio disponible (actualizado)',
+            'command': 'df -h --total',
+            'tags': 'disco, monitoreo',
+            **self._formset_management_data(total=1, initial=1),
+            'flags-0-id': str(flag.id),
+            'flags-0-flag': '-h',
+            'flags-0-explanation': 'Formato legible actualizado',
+        }
+
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+        command.refresh_from_db()
+        self.assertEqual(command.description, 'Ver espacio disponible (actualizado)')
+        self.assertEqual(command.command, 'df -h --total')
+        self.assertCountEqual(
+            command.tags.values_list('name', flat=True),
+            ['disco', 'monitoreo'],
+        )
+        self.assertEqual(command.flags.get(pk=flag.pk).explanation, 'Formato legible actualizado')
+
+    def test_delete_command(self):
+        command = LinuxCommand.objects.create(
+            owner=self.user,
+            description='Eliminar archivos temporales',
+            command='rm -rf /tmp/*',
+        )
+
+        response = self.client.post(reverse('linux_commands:delete', args=[command.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(LinuxCommand.objects.filter(pk=command.pk).exists())
