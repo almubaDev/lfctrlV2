@@ -34,6 +34,7 @@ def dashboard_view(request):
     try:
         from tracking.models import WeightRecord, BodyMeasurement, ProgressPhoto
         from finances.models import AnnualFlow
+        from linux_commands.models import CommandTag, LinuxCommand
         from tasks.models import Task
 
         # Obtener estadísticas de tracking
@@ -74,6 +75,9 @@ def dashboard_view(request):
             last_completed=today,
         ).count()
 
+        linux_commands_count = LinuxCommand.objects.filter(owner=request.user).count()
+        linux_tags_count = CommandTag.objects.filter(commands__owner=request.user).distinct().count()
+
 
     except Exception:
         weight_stats = {'current': None, 'date': None}
@@ -86,6 +90,8 @@ def dashboard_view(request):
         tasks_today_count = 0
 
         tasks_completed_today_count = 0
+        linux_commands_count = 0
+        linux_tags_count = 0
 
 
     apps = [
@@ -118,6 +124,17 @@ def dashboard_view(request):
                 {'label': 'Pendientes hoy', 'value': str(tasks_today_count)},
                 {'label': 'Completadas hoy', 'value': str(tasks_completed_today_count)},
 
+            ]
+        },
+        {
+            'name': 'Aprendizaje de comandos de Linux',
+            'description': 'Guarda comandos, banderas y etiquetas personalizadas',
+            'icon': 'fas fa-terminal',
+            'url': 'linux_commands:list',
+            'color': 'bg-secondary',
+            'stats': [
+                {'label': 'Comandos guardados', 'value': str(linux_commands_count)},
+                {'label': 'Etiquetas únicas', 'value': str(linux_tags_count)},
             ]
         },
     ]
